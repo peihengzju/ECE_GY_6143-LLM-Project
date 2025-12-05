@@ -1,0 +1,490 @@
+[
+  {
+    "text": "EL5613 – Introduction to Electric Power Systems S YLLABUS 9/9 - Lecture 1: Power in single-phase AC circuits, and power factor 9/16 - Lecture 2: Voltage and current in three-phase circuits 9/23 - Lecture 3: Complex power, and power triangle 9/30 - Lecture 4: Transmission lines parameters: resistance, inductance and capacitance. 10/7 - Lecture 5: Pi-equivalent diagram – short a nd medium length lines 10/14 - Lecture 6: Pi-equivalent diagram – long li nes • Midterm examination (Oct. 21) 10/28 - Lecture 7: Transmission lines parameters – Transformers 11/4 - Lecture 8: Per-unit normalization 11/11 - Lecture 9: Transmission lines parameters – generators 11/18 - Lecture 10: Symmetrical components – basics 11/25 - Lecture 11: Symmetrical components – applic ation to fault analysis 12/2 - Lecture 12: Symmetrical components – unsymme trical faults 12/9 - Lecture 13: Load-flow programming – basics • Final exam (Dec. 16) Text book: J.D. Glover, M.S. Sarma, T.J. Overbye, “ Power System Analysis and design,” Thomson Publishing, 4th Ed., 2008. Grading policy: Home work – 10% Midterm exam – 30% Final Exam – 60% Instructor: Francisco de Leon Room: LC 255 Tel: (718) 260 3961 E-mail: fdeleon@poly.edu Office LC 225 Consulting: Wednesdays 5 to 6",
+    "meta": {
+      "file": "ECE_GY_5613 syllabus.pdf",
+      "page": 0,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "Thomson Publishing, 4th Ed., 2008. Grading policy: Home work – 10% Midterm exam – 30% Final Exam – 60% Instructor: Francisco de Leon Room: LC 255 Tel: (718) 260 3961 E-mail: fdeleon@poly.edu Office LC 225 Consulting: Wednesdays 5 to 6",
+    "meta": {
+      "file": "ECE_GY_5613 syllabus.pdf",
+      "page": 0,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "• Final exam (Dec. 16)\nText book: J.D. Glover, M.S. Sarma, T.J. Overbye, “ Power System Analysis and design,”\nThomson Publishing, 4th Ed., 2008.\nGrading policy:\nHome work – 10%\nMidterm exam – 30%\nFinal Exam – 60%",
+    "meta": {
+      "file": "ECE_GY_5613 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "Text book: J.D. Glover, M.S. Sarma, T.J. Overbye, “ Power System Analysis and design,”\nThomson Publishing, 4th Ed., 2008.\nGrading policy:\nHome work – 10%\nMidterm exam – 30%\nFinal Exam – 60%\nInstructor: Francisco de Leon",
+    "meta": {
+      "file": "ECE_GY_5613 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "Thomson Publishing, 4th Ed., 2008.\nGrading policy:\nHome work – 10%\nMidterm exam – 30%\nFinal Exam – 60%\nInstructor: Francisco de Leon\nRoom: LC 255",
+    "meta": {
+      "file": "ECE_GY_5613 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "Grading policy:\nHome work – 10%\nMidterm exam – 30%\nFinal Exam – 60%\nInstructor: Francisco de Leon\nRoom: LC 255\nTel: (718) 260 3961",
+    "meta": {
+      "file": "ECE_GY_5613 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "NYU Tandon School of Engineering – Polytechnic Institute Department of Electrical & Computer Engineering EL6253: Linear Systems Course web site: http://crrl.poly.edu/6253 (including homeworks & solutions & Oﬃce hours) Instructor: Prof. Farshad Khorrami Phone: (646) 997-3227 Fax: (646) 997-3906 email: khorrami@nyu.edu Room: LC266E Course Outline Lecture Subject I Basic concepts; classiﬁcation of systems; notion of state. II Realization thoery and canonical forms. III Canonical forms; review of time-doamin analysis: convolution, impulse response, and step response. IV-VI Solutions of linear diﬀerential and diﬀerence equations: time varying and time-invariant cases. Frequency domain analysis for time-invariant systems. VII Controllability and and observability for continuous systems both time- varying and ﬁxed. VIII Midterm. IX Controllability and observability for discrete-time systems both time- varying and ﬁxed systems. X, XI Kalman Decomposition. XI, XII Stability of linear systems and pole placement. XIII Observer design and separation principle. XIV Sampled data systems. XV Final Exam TEXT: P. E. Sarachik,Principles of Linear Systems, Cambridge Press, 1996. References: 1. T. Kailath, Linear Systems, Prentice-Hall, 1980. 2. P. J. Antsaklis and A. N. Michel, Linear Systems, McGraw Hill, 1997. 3. C. T. Chen, Linear System Theory and Design, HRW, 1984. 4. F. Khorrami, Lecture notes on the course website. Grading: Midterm:",
+    "meta": {
+      "file": "ECE_GY_6253 syllabus.pdf",
+      "page": 0,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "Kailath, Linear Systems, Prentice-Hall, 1980. 2. P. J. Antsaklis and A. N. Michel, Linear Systems, McGraw Hill, 1997. 3. C. T. Chen, Linear System Theory and Design, HRW, 1984. 4. F. Khorrami, Lecture notes on the course website. Grading: Midterm: 40% , Final: 50%, Homework: 10%",
+    "meta": {
+      "file": "ECE_GY_6253 syllabus.pdf",
+      "page": 0,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "2. P. J. Antsaklis and A. N. Michel, Linear Systems, McGraw Hill, 1997.\n3. C. T. Chen, Linear System Theory and Design, HRW, 1984.\n4. F. Khorrami, Lecture notes on the course website.\nGrading:\nMidterm: 40% , Final: 50%, Homework: 10%",
+    "meta": {
+      "file": "ECE_GY_6253 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "3. C. T. Chen, Linear System Theory and Design, HRW, 1984.\n4. F. Khorrami, Lecture notes on the course website.\nGrading:\nMidterm: 40% , Final: 50%, Homework: 10%",
+    "meta": {
+      "file": "ECE_GY_6253 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "Tandon School of Engineering, New York University Department of Electrical and Computer Engineering ECE-GY 5253: Applied Matrix Theory Instructor: Prof. Z. P. Jiang Contact hours: before/after class Phone: (646) 997-3646 or, by appointment zjiang@nyu.edu Room 1001, Jay 370 Course Outline Week Subject I Elementary facts about matrices and determinants II Theory of linear equations III Eigenvalues and eigenvectors IV-VI Canonical forms and transformations VII The Jordan canonical form VIII Midterm IX-X Norms, location of eigenvalues, and the singular value decomposition (SVD) XI Matrix analysis of diﬀerential and diﬀerence equations XII Application to stability analysis of linear systems XIII Nonnegative matrices XIV Computational issues XV Final (mid-December, 2019) References: • (Recommended Text) R.A. Horn and C.R. Johnson, Matrix Analysis. 2nd edition. Cam- bridge Univ. Press, 2013. ISBN: 978-0-521-54823-6 • A. J. Laub, Matrix Analysis for Scientists and Engineers. SIAM, 2005. • (Math.-oriented) F. R. Gantmacher, The Theory of Matrices. Vol. I & Vol. II, Chelsea Pub. Company, 1953. • Class notes. Grading Policy: Attendance: 5% , Midterm: 35% , Final: 45%, Homework: 15%",
+    "meta": {
+      "file": "ECE_GY_5253 syllabus.pdf",
+      "page": 0,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "Grading Policy: Attendance: 5% , Midterm: 35% , Final: 45%, Homework: 15%",
+    "meta": {
+      "file": "ECE_GY_5253 syllabus.pdf",
+      "page": 0,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "• (Math.-oriented) F. R. Gantmacher, The Theory of Matrices. Vol. I & Vol. II, Chelsea\nPub. Company, 1953.\n• Class notes.\nGrading Policy:\nAttendance: 5% , Midterm: 35% , Final: 45%, Homework: 15%",
+    "meta": {
+      "file": "ECE_GY_5253 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "Pub. Company, 1953.\n• Class notes.\nGrading Policy:\nAttendance: 5% , Midterm: 35% , Final: 45%, Homework: 15%",
+    "meta": {
+      "file": "ECE_GY_5253 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "ECE.GY 6143, CS-GY 6923: Introduction to Machine Learning Description: This course is an introduction to the field of machine learning, covering fundamental techniques for classification, regression, dimensionality reduction, clustering, and model selection. A broad range of algorithms will be covered, such as linear and logistic regression, neural networks, deep learning, support vector machines, tree-based methods, expectation maximization, and principal components analysis. The course will include hands-on exercises with real data from different application areas (e.g. text, audio, images). Students will learn to train and validate machine learning models and analyze their performance. May not take if student has already completed ECE-UY 4563. Professor: • Prof. Sundeep Rangan, ECE. • Office hours: Wednesdays 16:00 to 17:00 (in my office or on zoom) Graders: • Graders will help you with any administrative issues and setting up python or google colab. • They will also grade all homeworks and exams • Please direct questions to them first. Grader name Email Allocation Tejdeep Chippa tejdeep.chippa@nyu.edu Full Roshan Nayak rn2588@nyu.edu Full Akshat Singh akshat.singh@nyu.edu Full Aadit Anand Fadia aaf9407@nyu.edu Full Sheetal Prasad sheetal.prasad@nyu.edu Half Raunak Choudhary rc5553@nyu.edu Half Lecture: Tuesdays 11:00-13:30, 370 Jay St, Room 202 • All lectures will be on zoom • Attendance",
+    "meta": {
+      "file": "ECE_GY_6143 syllabus.pdf",
+      "page": 0,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "tejdeep.chippa@nyu.edu Full Roshan Nayak rn2588@nyu.edu Full Akshat Singh akshat.singh@nyu.edu Full Aadit Anand Fadia aaf9407@nyu.edu Full Sheetal Prasad sheetal.prasad@nyu.edu Half Raunak Choudhary rc5553@nyu.edu Half Lecture: Tuesdays 11:00-13:30, 370 Jay St, Room 202 • All lectures will be on zoom • Attendance (in person or online) is OK. Attendance is not mandatory • Bring your laptop. We will do in class exercise Grading: 35% midterm, 35% final, 30% homework and labs. • There is also 20% optional project. Pre-requisites: This class assumes you have probability and calculus at the undergraduate level. It assumes NO machine learning experience. If you have taken ML in your undergraduate degree, you can skip this class and go directly to an advanced ML or deep ML class. Note that in ECE, the advanced ML class requires graduate-level probability. I am happy to discuss if you feel unsure. There is also no",
+    "meta": {
+      "file": "ECE_GY_6143 syllabus.pdf",
+      "page": 0,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "• All lectures will be on zoom\n• Attendance (in person or online) is OK.  Attendance is not mandatory\n• Bring your laptop.  We will do in class exercise\nGrading:  35% midterm, 35% final, 30% homework and labs.\n• There is also 20% optional project.\nPre-requisites:  This class assumes you have probability and calculus at the undergraduate level.  It\nassumes NO machine learning experience.  If you have taken ML in your undergraduate degree, you can",
+    "meta": {
+      "file": "ECE_GY_6143 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "• Attendance (in person or online) is OK.  Attendance is not mandatory\n• Bring your laptop.  We will do in class exercise\nGrading:  35% midterm, 35% final, 30% homework and labs.\n• There is also 20% optional project.\nPre-requisites:  This class assumes you have probability and calculus at the undergraduate level.  It\nassumes NO machine learning experience.  If you have taken ML in your undergraduate degree, you can\nskip this class and go directly to an advanced ML or deep ML class.  Note that in ECE, the advanced ML",
+    "meta": {
+      "file": "ECE_GY_6143 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "python programming experience required. But, I assume you can pick up python if you have not coded in it before. Class material: All the material for the class is on the github website. https://github.com/sdrangan/introml/blob/master/sequence.md The first week, we will cover the course admin, Unit 1 and Unit 3. For the graduate course, we skip Unit 2. You should study this unit on your own. For the following weeks, we will cover approximately one unit per week. All other details on the class including the grading can be found on: https://github.com/sdrangan/introml/blob/master/lectures/CourseAdmin.pdf Online format: All classes will be on pre-recorded videos so that you can watch them at your pace. I have started to produce the online content here. https://github.com/sdrangan/introml/blob/master/online_class.md Each unit is divided into sections. Watch the video for the section and then try to answer the short exercise before moving to the next section. First in-class session: The first in-class session is Sept 2. Before this class, you should watch the online material for Units 1 and 3. In the class, I will go over the course admin and the in-class exercises for Units 1 and 3. I will also go over the lab and problem set that are due",
+    "meta": {
+      "file": "ECE_GY_6143 syllabus.pdf",
+      "page": 1,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "the online material for Units 1 and 3. In the class, I will go over the course admin and the in-class exercises for Units 1 and 3. I will also go over the lab and problem set that are due the following week. Tentative Schedule of classes: To modernize the curriculum, we are modifying the later lectures a bit. Date Prior Years Fall 2025 Unit Description Unit Description 9/2/2025 1, 2 Course Admin. What is ML? Multiple Linear Regression 1, 2 Course Admin. What is ML? Multiple Linear Regression 9/9/2025 3 Model Selection 3, 4 Model Selection & Regularization 9/16/2025 4 Regularization and LASSO 5 Logistic Regression 9/23/2025 5 Logistic Regression 6 Nonlinear Optimization 9/30/2025 6 Nonlinear Optimization Kernel methods, KNN [New] 10/7/2025 Midterm review Decision Trees [New] 10/14/2025 No class: Spring break No class: Spring break 10/21/2025 Midterm Midterm 10/28/2025 7 SVMs 8 Neural Networks 11/4/2025 8 Neural Networks 9 Convolutional neural networks 11/11/2025 9 Convolutional neural networks 10 PCA 11/18/2025 10 PCA 11 Word Embeddings and tokenization 11/25/2025 11 Clustering and K-means 13 Clustering and K-means [Modified] 12/2/2025 Final Exam Review / Make Up Final Exam Review / Make Up 12/9/2025 Final Exam Final Exam",
+    "meta": {
+      "file": "ECE_GY_6143 syllabus.pdf",
+      "page": 1,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "PCA 11/18/2025 10 PCA 11 Word Embeddings and tokenization 11/25/2025 11 Clustering and K-means 13 Clustering and K-means [Modified] 12/2/2025 Final Exam Review / Make Up Final Exam Review / Make Up 12/9/2025 Final Exam Final Exam",
+    "meta": {
+      "file": "ECE_GY_6143 syllabus.pdf",
+      "page": 1,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "https://github.com/sdrangan/introml/blob/master/sequence.md\nThe first week, we will cover the course admin, Unit 1 and Unit 3.  For the graduate course, we skip Unit\n2.  You should study this unit on your own.  For the following weeks, we will cover approximately one\nunit per week.  All other details on the class including the grading can be found on:\nhttps://github.com/sdrangan/introml/blob/master/lectures/CourseAdmin.pdf\nOnline format:  All classes will be on pre-recorded videos so that you can watch them at your pace.  I\nhave started to produce the online content here.",
+    "meta": {
+      "file": "ECE_GY_6143 syllabus.pdf",
+      "page": 1,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "New York University Tandon School of Engineering Electrical and Computer Engineering Course Outline ECE 6913 [Computing Systems Architecture], Fall 2025 Instructor: Azeez Bhavnagarwala Instructor Contact : ajb20@nyu.edu Course Assistants & Graders contact: Abhishek Koti, ak11546@nyu.edu Riya Shah, rs9177@nyu.edu Vishwajeet Kulkarni, vk2630@nyu.edu Shreyas Kootiganahalli, sk12200@nyu.edu Kushal Gadhiya, khg9056@nyu.edu Sakshi Bhavsar, sgb9086@nyu.edu Instructor Off. Hours: Directly after Class Course Assistant Off. Hours: Monday, Tuesday, Wednesday, Thursday 9:30 AM - 11:00 AM Instruction: In-person Classroom discussions: Section A: Thursday 2:00 PM – 4:30 PM (5 MetroTech, Pfizer Auditorium) Section B: Tuesday 5:00 AM – 7:30 PM (6 MetroTech, Jacobs Hall Room 475) INET Section: Discussion Hour, Wednesdays 9AM – 10AM (Zoom) Course Prerequisites: Basic knowledge of digital logic and Computer Architecture is assumed. If you have not taken an undergraduate level class on Computer Architecture, you will need to supplement course work with additional preparation – please review introductory texts posted on Brightspace.",
+    "meta": {
+      "file": "ECE_GY_6913 syllabus.pdf",
+      "page": 0,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "Weekly Schedule: Detailed Course Description: ECE 6913 provide s a solid foundation for graduate students to understand modern comput ing systems architecture and to apply these insights and principles to design computer systems given the emerging age of domain specific architectures and an unprecedented growth in markets for trillions of pervasive, energy- efficient and ultra-low-cost processor chips. The course begins with an introduction to the foundations of general -purpose computing - the Von Neumann architecture and incumbent Instruction Set Architectures (ISAs). Understanding the evolution of computing applications and more relevantly, the limitations of underlying silicon CMOS and interconnect technologies enable us to appreciate the challenges the industry now sees and the opportunities for innovation across the compute stack we could pursue to resolve these in the foreseeable future. RISC computing is introduced as an ISA that emerged from the falling cost of Memory per bit and the need for efficient execution using simple, regular and small instruction sets. Older ISAs were required to use powerful and complex instructions to maintain a compact program size give the higher system cost from storing larger programs. The course reviews in detail the open-source RISC-V ISA that has proliferated over the last 5-7 years",
+    "meta": {
+      "file": "ECE_GY_6913 syllabus.pdf",
+      "page": 1,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "were required to use powerful and complex instructions to maintain a compact program size give the higher system cost from storing larger programs. The course reviews in detail the open-source RISC-V ISA that has proliferated over the last 5-7 years across IoT, mobile, embedded and HPC systems. We will review the formats and the encoding of its compact Base Integer ISA of just 47 instructions. The course continues with IEEE 754 representation of Real numbers for Floating Point arithmetic components, reviewing the RV32FD - Single/Double Precision Floating Point RISC V extensions, RV32C extensions for Compressed instructions and RV32V - Vector extensions of the RISC V ISA We will look at the basics of pipelining and its implications on the data path of a general-purpose processor - its implementation & control of the classic five-stage RISC pipeline in detail , and will then examine its performance considering hazards - how these degrade performance and how they are resolved. Branch prediction is introduced as an advanced technique to reduce direct stalls attributable to branches. Out of order instruction execution is introduced as a technique where an instruction executes as soon as its data operands are available – reducing stalls seen in an",
+    "meta": {
+      "file": "ECE_GY_6913 syllabus.pdf",
+      "page": 1,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "introduced as an advanced technique to reduce direct stalls attributable to branches. Out of order instruction execution is introduced as a technique where an instruction executes as soon as its data operands are available – reducing stalls seen in an in-order execution pipeline. Because high-end processors have multiple cores, the bandwidth requirements on the memory hierarchy are greater than for single cores with the gap between CPU memory demand and on-chip bandwidth continuing to grow with the number of cores. The course details an example memory hierarchy of the Intel quad Core i7 6700 that delivers a total peak data and instruction reference demand bandwidth of 409.6 GiB/s at a clock rate of 4.2GHz - accomplished by multiporting and pipelining the caches using three levels",
+    "meta": {
+      "file": "ECE_GY_6913 syllabus.pdf",
+      "page": 1,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "of caches with two private levels per core and a shared L3 with separate instruction and data arrays at the first level. Architecture innovations over the past few decades may not be a good match for the emerging AI domains supporting image or speech recognition and GenAI. The class reviews example AI Hardware accelerators – a GPU and a custom CMOS ASIC - the TPU for the data center. Cost-performance comparisons of the TPU with CPUs and GPUs using DNN benchmarks reveal the opportunity of an upcoming renaissance for computer architecture Online Course Content Schedule: Weekly lecture slide sets and HW assignments, reading assignments to be made available on NYU Brightspace. Homework Assignments are due weekly. Please submit HW assignments as PDFs of Word documents with your identifying information and not on hand-written sheets of paper. Please prefix your HW assignment submission file name with your netID followed by the H W assignment. For example, I would submit HW 4 as a PDF document with filename: ajb20_HW4.pdf Course structure: Your performance in the course will be assessed via weekly HW assignments (10% of total grade) Project (10% of total grade): RISCV processor simulator [Project A], 2 Midterms (50% of total",
+    "meta": {
+      "file": "ECE_GY_6913 syllabus.pdf",
+      "page": 2,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "as a PDF document with filename: ajb20_HW4.pdf Course structure: Your performance in the course will be assessed via weekly HW assignments (10% of total grade) Project (10% of total grade): RISCV processor simulator [Project A], 2 Midterms (50% of total grade) and a final (25% of total grade). Class Participation (5% of grade). There will also be pop-quizzes and (extra credit) HW assignments. Participation in these activities is highly encouraged. Course Textbooks: [1] Hennessy and Patterson (RISC-V edition) of “Computer Organization & Design, Hardware-Software Interface ” [2] Hennessey and Patterson, “Computer Architecture: A Quantitative Approach” [6th Edition], Morgan Kaufmann. Policy on Academic Honesty: In pursuing these goals, NYU expects and requires its students to adhere to the highest standards of scholarship, research and academic conduct. Essential to the process of teaching and learning is the periodic assessment of students' academic progress thr ough measures such as papers, examinations, presentations, and other projects. Academic dishonesty compromises the validity of these assessments as well as the relationship of trust within the community. Students who engage in such behavior will be subject to review and the possible imposition of penalties in accordance with the standards, practices, and procedures of NYU and its colleges",
+    "meta": {
+      "file": "ECE_GY_6913 syllabus.pdf",
+      "page": 2,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "as well as the relationship of trust within the community. Students who engage in such behavior will be subject to review and the possible imposition of penalties in accordance with the standards, practices, and procedures of NYU and its colleges and schools. Violations may result in failure on a particular assignment, failure in a course, suspension or expulsion from the University, or other penalties. More details about specific actions that constitute a violation of the NYU policy can be found here. https://www.nyu.edu/about/policies-guidelines-compliance/policies-and-guidelines/academic-integrity- for-students-at-nyu.html Moses Center Statement of Disability: If you are student with a disability who is requesting accommodations, please contact New York University’s Moses Center for Students with Disabilities at 212-998-4980 or mosescsd@nyu.edu. You must be registered with CSD to receive accommodations. Informat ion about the Moses Center can be found at www.nyu.edu/csd. The Moses Center is located at 726 Broadway on the 2nd floor.",
+    "meta": {
+      "file": "ECE_GY_6913 syllabus.pdf",
+      "page": 2,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "of paper. Please prefix your HW assignment submission file name with your netID followed by the H W\nassignment. For example, I would submit HW 4 as a PDF document with filename: ajb20_HW4.pdf\nCourse structure:\nYour performance in the course will be assessed via weekly HW assignments (10% of total grade) Project\n(10% of total grade): RISCV processor simulator [Project A], 2 Midterms (50% of total grade) and\na final (25% of total grade). Class Participation (5% of grade). There will also be pop-quizzes and (extra\ncredit) HW assignments. Participation in these activities is highly encouraged.",
+    "meta": {
+      "file": "ECE_GY_6913 syllabus.pdf",
+      "page": 2,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "assignment. For example, I would submit HW 4 as a PDF document with filename: ajb20_HW4.pdf\nCourse structure:\nYour performance in the course will be assessed via weekly HW assignments (10% of total grade) Project\n(10% of total grade): RISCV processor simulator [Project A], 2 Midterms (50% of total grade) and\na final (25% of total grade). Class Participation (5% of grade). There will also be pop-quizzes and (extra\ncredit) HW assignments. Participation in these activities is highly encouraged.\nCourse Textbooks: [1] Hennessy and Patterson (RISC-V edition) of “Computer Organization & Design,",
+    "meta": {
+      "file": "ECE_GY_6913 syllabus.pdf",
+      "page": 2,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "Course structure:\nYour performance in the course will be assessed via weekly HW assignments (10% of total grade) Project\n(10% of total grade): RISCV processor simulator [Project A], 2 Midterms (50% of total grade) and\na final (25% of total grade). Class Participation (5% of grade). There will also be pop-quizzes and (extra\ncredit) HW assignments. Participation in these activities is highly encouraged.\nCourse Textbooks: [1] Hennessy and Patterson (RISC-V edition) of “Computer Organization & Design,\nHardware-Software Interface ” [2] Hennessey and Patterson, “Computer Architecture: A Quantitative",
+    "meta": {
+      "file": "ECE_GY_6913 syllabus.pdf",
+      "page": 2,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "Policy on Academic Honesty:\nIn pursuing these goals, NYU expects and requires its students to adhere to the highest standards of\nscholarship, research and academic conduct. Essential to the process of teaching and learning is the periodic\nassessment of students' academic progress thr ough measures such as papers, examinations, presentations,\nand other projects. Academic dishonesty compromises the validity of these assessments as well as the\nrelationship of trust within the community. Students who engage in such behavior will be subject to review\nand the possible imposition of penalties in accordance with the standards, practices, and procedures of NYU",
+    "meta": {
+      "file": "ECE_GY_6913 syllabus.pdf",
+      "page": 2,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "In pursuing these goals, NYU expects and requires its students to adhere to the highest standards of\nscholarship, research and academic conduct. Essential to the process of teaching and learning is the periodic\nassessment of students' academic progress thr ough measures such as papers, examinations, presentations,\nand other projects. Academic dishonesty compromises the validity of these assessments as well as the\nrelationship of trust within the community. Students who engage in such behavior will be subject to review\nand the possible imposition of penalties in accordance with the standards, practices, and procedures of NYU\nand its colleges and schools. Violations may result in failure on a particular assignment, failure in a course,",
+    "meta": {
+      "file": "ECE_GY_6913 syllabus.pdf",
+      "page": 2,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "Course Schedule: Week Weekly HW Release date ECE 6913 Content Assignment 1 9/5 Quantitative Design & Analysis, Physical limits on scaling CMOS – End of Dennard Scaling and Moore’s Law. Evolution of System architecture, cost, energy efficiency and performance driven by emerging workloads dominated by AI. Hardware limitations and opportunities from ISAs, DSAs and Wafer Scale/ 3D Heterogenous Integration HW 1 2 9/12 Introduction to the RISC-V, RISC-V Instructions, Instruction formats, encoding, memory management. Open-Source RISCV ISA review. Comparisons with older ISAs HW 2, 3 3 9/19 4 9/26 Introductory Review of Project, Midterm 1 Review Problems HW 4 5 10/3 Midterm I (Tue Sept 30, Sec B) (Thu Oct 2nd Sec A) Project Phase 0 Due: Complete trial submission of Shell assignment to align with auto grader format 6 10/10 No Class on Tue Oct 14 ( for Sec B). Class will be held on Thu Oct 16 (for Sec A) Monday Schedule at University on Tue 10/14 HW 5 7 Oct 17 IEEE 754 representation & Floating-point Arithmetic for Computers. RV32FD – FP registers, FP load/stores/arithmetic, FP moves/converts HW 6 8 10/24 Pipelining: Basic & Intermediate concepts. Classic 5 stage RISC processor pipeline. HW 7 9 10/31 Pipeline",
+    "meta": {
+      "file": "ECE_GY_6913 syllabus.pdf",
+      "page": 3,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "5 7 Oct 17 IEEE 754 representation & Floating-point Arithmetic for Computers. RV32FD – FP registers, FP load/stores/arithmetic, FP moves/converts HW 6 8 10/24 Pipelining: Basic & Intermediate concepts. Classic 5 stage RISC processor pipeline. HW 7 9 10/31 Pipeline Hazards, Pipelining implementation HW 8 10 11/7 Introduction to Phase II of Project, Midterm 2 Review Problems Phase I report of Project Due 11 11/14 Midterm II (Tue, Nov 11th Sec B) (Thu, Nov 13th Sec A) - 12 Nov 21 Introduction to Memory Hierarchy: Memory technologies, Caches, Cache performance. Comparison of ARM Cortex A-53 and the Intel quad Core i7 6700 Memory hierarchy . Virtual Machines, Virtual Memory, FSM for simple cache controller, Cache coherence HW 9 13 11/28 Thanksgiving Recess. No class on Thu 11/27 (Sec A) Class will be held on Tue 11/25 (Sec B) - 14 12/5 Introduction to Parallel Processing SISD, MIMD, SIMD, SPMD, and Vector machines, Hardware Multithreading Multicore and Other Shared Memory Multiprocessors. Introduction to the GPU HW 10 15 12/12 Closing Topics, Review Problems for Final Phase II report of Project Due 16 12/19 Final: Tue, Dec 16 (Sec B) & Thu Dec 18 (Sec A)",
+    "meta": {
+      "file": "ECE_GY_6913 syllabus.pdf",
+      "page": 3,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "Introduction to the GPU HW 10 15 12/12 Closing Topics, Review Problems for Final Phase II report of Project Due 16 12/19 Final: Tue, Dec 16 (Sec B) & Thu Dec 18 (Sec A)",
+    "meta": {
+      "file": "ECE_GY_6913 syllabus.pdf",
+      "page": 3,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "ECE-GY 6483: Real Time Embedded Systems NYU Tandon School of Engineering Spring 2025 _________________________________________________________________________________ 1 Course Information Instructor: Office hours: Lectures : Prerequisites : Teaching assistants: TA office hours: Textbook and Materials: Matthew Campisi mcampisi@nyu.edu Weekly/TBD Tue 5:00-7:30PM ET (370 Jay, RM202) Digital Logic/Computer hardware/Basic Programming skills 6 Total (info TBD) TBD No required textbook. Optional references: 1. Computers as components: principles of embedded computing system design. Wolf, Marilyn. Elsevier, 2012. 2. Real- time systems design and analysis: tools for the Grading: practitioner. Laplante, Phillip A., and Seppo J. Ovaska. John Wiley and Sons, 2011. STM32L4 Discovery kit IoT node, low-power wireless, BLE, NFC, SubGHz, Wi-Fi (B-L475E-IOT01A - STM32L4 Discovery kit IoT node, low-power wireless, BLE, NFC, SubGHz, Wi-Fi - STMicroelectronics) available through Mouser or Digikey) Assignments: 30% 2 Exams (Open notes): 30% Final Project: 40% 2 Course Description This course provides an overview of the unique concepts and techniques needed to design and implement computer systems having realtime response requirements in an embedded environment. It contrasts the concepts and techniques of real time and embedded systems with those of more traditional computer systems. Topics include: Basic concepts of real time and embedded systems, hardware features, sensors and actuators, programming",
+    "meta": {
+      "file": "ECE_GY_6483 syllabus.pdf",
+      "page": 0,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "requirements in an embedded environment. It contrasts the concepts and techniques of real time and embedded systems with those of more traditional computer systems. Topics include: Basic concepts of real time and embedded systems, hardware features, sensors and actuators, programming languages, real time operating systems, synchronization techniques, performance opt imization and current trends in real time and embedded systems such as incorporating internet connectivity.",
+    "meta": {
+      "file": "ECE_GY_6483 syllabus.pdf",
+      "page": 0,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "1. Computers as components: principles of embedded\ncomputing system design. Wolf, Marilyn. Elsevier, 2012.\n2. Real- time systems design and analysis: tools for the\nGrading:\npractitioner. Laplante, Phillip A., and Seppo J. Ovaska. John\nWiley and Sons, 2011.\nSTM32L4 Discovery kit IoT node, low-power wireless,",
+    "meta": {
+      "file": "ECE_GY_6483 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "Discovery kit IoT node, low-power wireless, BLE, NFC,\nSubGHz, Wi-Fi - STMicroelectronics)  available through\nMouser or Digikey)\nAssignments: 30%\n2 Exams (Open notes): 30%\nFinal Project: 40%\n2 Course Description",
+    "meta": {
+      "file": "ECE_GY_6483 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "SubGHz, Wi-Fi - STMicroelectronics)  available through\nMouser or Digikey)\nAssignments: 30%\n2 Exams (Open notes): 30%\nFinal Project: 40%\n2 Course Description\nThis course provides an overview of the unique concepts and techniques needed to design and",
+    "meta": {
+      "file": "ECE_GY_6483 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "Mouser or Digikey)\nAssignments: 30%\n2 Exams (Open notes): 30%\nFinal Project: 40%\n2 Course Description\nThis course provides an overview of the unique concepts and techniques needed to design and\nimplement computer systems having realtime response requirements in an embedded environment.",
+    "meta": {
+      "file": "ECE_GY_6483 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "1 ECE-GY 6483 Fall 2021 Syllabus 3 Outline The following is a outline of the course topics: • Week 1: Preliminaries : definitions, examples of embedded systems, computer organization concepts, memory • Week 2: ARM Cortex Mxxx Hardware Overview • Week 3: Embedded C programming concepts/VS Code IDE/Embed OS • Week 4: ARM Assembly Language • Week 5: Ports, Registers, GPIO • Week 6: Timers , Counters, and PWM • Week 7: Analog I/O, ADC/DAC/ Embedded DSP • Week 8: Communications :, USART, SPI, TWI (Exam 1) • Week 9: Interrupts, ISRs and Callbacks • Week 10: RTOS Characteristics: Scheduling, priorities, reentrancy • Week 11: RTOS: Shared Resources Management, Mutex, Semaphores and Critical Sections • Week 12: Reliability and System Modeling (Exam 2) • Week 13: Future of embedded systems : Networking and IOT (Internet of Things) • Week 14: Project Recap and Prep 4 Policies • Please familiarize yourself with, and follow, the university policies on add/drop deadlines, missing classes for religious observance, accomodations for students with disabilities, and other special circumstances. • This class has open -notes in class quizzes. “Open notes” means that you may use any printed or handwritten material. However, you may not use electronics,",
+    "meta": {
+      "file": "ECE_GY_6483 syllabus.pdf",
+      "page": 1,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "classes for religious observance, accomodations for students with disabilities, and other special circumstances. • This class has open -notes in class quizzes. “Open notes” means that you may use any printed or handwritten material. However, you may not use electronics, speak to other students, or share written materials with other students.",
+    "meta": {
+      "file": "ECE_GY_6483 syllabus.pdf",
+      "page": 1,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "Tandon School of Engineering of New York University Dept. Electrical & Computer Engineering ECE-GY 6113 / BE-GY 6403 ---- Digital Signal Processing I, Fall 2020 Lectures (Zoom): Tuesday 9:30 – 10:45 AM, Thursday 9:30 – 10:45 AM Course Description: Discrete and continuous-time linear systems. Z-transforms. Fourier transforms. Sampling. Discrete Fourier transform (DFT). Fast Fourier transform (FFT). Digital filtering. Design of FIR and IIR filters. Windowing. Least squares in signal processing. Minimum-phase and all-pass systems. MATLAB programming exercises Prerequisites: Graduate status. You should have had UG level signals and systems in your BS program. Undergraduate students must have completed EE-UY 3054 Signals and Systems. Instructor: Professor Thomas Marzetta, working from my home, Email: tom.marzetta@nyu.edu, Homepage: http://engineering.nyu.edu/people/thomas-marzetta, Office hours (remote!) by email appointment. Grader: Jacky Yuan, zy740@nyu.edu Text Book: We will not require a particular textbook. Lecture notes and supplementary materials will be posted on NYU Classes. However, you are highly recommended to have one of the following books for additional reading and more comprehensive treatment of digital signal processing. Other books on DSP are generally fine as well. • Discrete-Time Signal Processing, third edition, by Oppenheim and Schafer. Prentice Hall, 2010. ISBN-13: 978-0131988422. Link • Companion Website containing MATLAB based problems,",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 0,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "and more comprehensive treatment of digital signal processing. Other books on DSP are generally fine as well. • Discrete-Time Signal Processing, third edition, by Oppenheim and Schafer. Prentice Hall, 2010. ISBN-13: 978-0131988422. Link • Companion Website containing MATLAB based problems, demos, and projects. Link • Digital Signal Processing – A Computer Based Approach, 4th edition, by Sanjit K. Mitra, McGraw Hill, ISBN-13: 978-0073380490. Link Homework, Exam, and grading Policy: Midterm Exam: 40%, Final Exam: 40%, MATLAB assignments: 10%, Written HW: 10%. Written homework problems (some include simple MATLAB exercises) will be assigned every week and are due the following week at the lecture time. Late submissions are not accepted except in exceptional cases. Solutions to written HW will be posted on NYU Classes after the HW due date.",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 0,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "projects. Link\n• Digital Signal Processing – A Computer Based Approach, 4th edition,\nby Sanjit K. Mitra, McGraw Hill, ISBN-13: 978-0073380490. Link\nHomework, Exam, and grading Policy:  Midterm Exam: 40%, Final Exam: 40%,\nMATLAB assignments: 10%, Written HW: 10%.\nWritten homework problems (some include simple MATLAB exercises) will be assigned\nevery week and are due the following week at the lecture time. Late submissions are not",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "• Digital Signal Processing – A Computer Based Approach, 4th edition,\nby Sanjit K. Mitra, McGraw Hill, ISBN-13: 978-0073380490. Link\nHomework, Exam, and grading Policy:  Midterm Exam: 40%, Final Exam: 40%,\nMATLAB assignments: 10%, Written HW: 10%.\nWritten homework problems (some include simple MATLAB exercises) will be assigned\nevery week and are due the following week at the lecture time. Late submissions are not\naccepted except in exceptional cases. Solutions to written HW will be posted on NYU",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 0,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "MATLAB assignments will be given separately and due dates will be noted (roughly every week as well). You must submit the completed MATLAB assignment directly through NYU Classes. Please note that written assignments may be graded selectively (i.e. not all problems are graded in each assignment and detailed comments may not be provided due to the size of the class). But we will provide solution to all problems. Students should review the HW solutions carefully to verify their understanding of the HW problems. Access to MATLAB Students registered for this course can obtain MATLAB for their laptop computer. https://www.nyu.edu/life/information-technology/getting- started/software/matlab.html Students without prior experience with MATLAB should spend time during the first two weeks of class learning MATLAB. MATLAB tutorials are available at https://www.mathworks.com/ including the following links: tutorial in pdf , on-line-tutorial Homework problems and datasets will be selected from Prof. Selesnick’s exercise packets: • Signals_Exercises.pdf • DSP_Exercises.pdf • Data_files.zip Supplementary materials (including MATLAB demos) will be posted on NYU Classes, and some can also be accessed from here Links to resources in previous offerings: • Professor Selesnicks’s website for EL6113 Tentative Course Schedule • Week 1 (Sept 3,8): Introduction and LTI systems • Why digital signal processing •",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 1,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "NYU Classes, and some can also be accessed from here Links to resources in previous offerings: • Professor Selesnicks’s website for EL6113 Tentative Course Schedule • Week 1 (Sept 3,8): Introduction and LTI systems • Why digital signal processing • Discrete time signals. Examples. • Discrete time systems. System properties. • Linear and time invariant systems: Impulse response. Convolution. BIBO stability test. • MATLAB function: conv • MATLAB assignment 1: plotting signals, convolution • Reading: Oppenheim Sec. 2.0-2.4, Lecture note by Prof. Voltz (lect1_voltz.pdf) • Week 2 (Sept 10,15): Z-transform • Z-transform: region of convergence (ROC), right-sided and left-sided signals. • Inverse Z-transform: partial fraction expansion.",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 1,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "• MATLAB functions: roots, poly, residue. • MATLAB assignment 2: filtering of EKG signals • Reading : Oppenheim Sec. 3.0-3.4, Lecture note by Prof. Voltz (lect2_Voltz_Ztransform.pdf) • Week 3 (Sept 17,22): Z-transform and convolution, inverse systems • Convolution theorem. Convolution using Z-transform and inverse Z- transform. • Transfer function of LTI systems. • Difference equations: basic examples, from difference equations to transfer functions using Z-transform; • MATLAB function: filter. • Inverse LTI systems (debluring) (stable non-causal inverse systems). • Complex poles. • MATLAB demo: complex poles, inverse system. • MATLAB assignment 3: inverse filtering of EKG signals • Reading: Oppenheim Sec. 3.5, 5.2. Lecture note by Prof. Voltz (lect2_Voltz_Ztransform.pdf) • Week 4 (Sept 24,29): Frequency Response • DC gain. • Frequency response: complex exponential function as the eigen function of the LTI system, meaning of frequency response, the periodicity of frequency response, response of LTI system to sinusoidal inputs. Evaluation of frequency response. • Transfer function / frequency response / unit circle: relationship between time domain and frequency domain; relations -hip between poles-zeros and frequency response • MATLAB functions: freqz, polyval • MATLAB demo: frequency response • MATLAB assignment 4: frequency response • Reading: Oppenheim Sec. 2.6, 5.1, 5.3, 5.4.",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 2,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "unit circle: relationship between time domain and frequency domain; relations -hip between poles-zeros and frequency response • MATLAB functions: freqz, polyval • MATLAB demo: frequency response • MATLAB assignment 4: frequency response • Reading: Oppenheim Sec. 2.6, 5.1, 5.3, 5.4. Lecture note by Prof. Voltz (lect3_FreqResponse.pdf) • Week 5 (Sept 31, Oct 6): Discrete Time Fourier Transform (DTFT) • Definition and relation with Z-transform • Impulse response using inverse DTFT • Ideal low-pass filter (LPF) <-> Sinc function • N-point moving average filter: roots of unity, digital sinc function, roots of unity equally spaced on unit circle • Properties of DTFT • Symmetry for real valued signals • Meaning of digital frequency, real frequency given sampling rate • Example spectra of signals (e.g. voiced and unvoiced speech) • Spectrogram",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 2,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "• Frequency response: complex exponential function as the eigen function of\nthe LTI system, meaning of frequency response,\nthe periodicity of frequency response, response of LTI system\nto sinusoidal inputs. Evaluation of frequency response.\n• Transfer function / frequency response /\nunit circle: relationship between time domain and frequency domain; relations\n-hip between poles-zeros and frequency response",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 2,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "• MATLAB assignment 5: speech recording and computing spectra using fft and spectrogram • Reading: Oppenheim Sec. 2.7-2.9. Lecture note by Prof. Voltz (Voltz_DTFT.pdf) • Week 6 (Oct 8,13). Special systems • Simple system design: low order systems, specified dc gain and nulls and frequency response at specified frequencies • Differentiator • Notch filters: motivation (removing 60 Hz hum, baseline drift correction), second-order recursive filter, tonal noise suppression, baseline drift correction, MATLAB demo: notch filter demo • Phase delay of systems: delay of sinusoid signals through LTI systems, MATLAB demo: filter delay demo • MATLAB assignment 6: baseline drift correction in EKG signals using dc notch filters, tonal noise suppression using 4th order filter • Reading: Selesnick’s note and examples (posted at NYU Classes) • Week 7 (Oct 15,20): DFT • DFT: definition, DFT as a special case of orthogonal transform, properties, connection with DTFT • FFT algorithm (brief review). MATLAB function: fft, ifft, fftshift • Circular convolution and Convolution theorem: relation to linear convolution, using FFT to compute linear convolution • MATLAB assignment 7: Using FFT to compute circular and linear convolution, using FFT to plot signal spectrum. • Reading: Selesnick’s note (posted at NYU Classes). Optional: Oppenheim Secs.",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 3,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "theorem: relation to linear convolution, using FFT to compute linear convolution • MATLAB assignment 7: Using FFT to compute circular and linear convolution, using FFT to plot signal spectrum. • Reading: Selesnick’s note (posted at NYU Classes). Optional: Oppenheim Secs. 8.5, 8.6, 8.8. • Oct 22: Midterm exam • Week 8 (Oct 27,29): DTFT/spectrum evaluation using DFT • Using FFT to evaluate DTFT, zero padding, understanding relation between frequency and DFT freq. index. • Frequency leakage • Frequency measurement using windows and DFT • Short-time FT (STFT): influence of parameters (frame size, hop, DFT length), MATLAB function: Spectrogram • MATLAB assignment 8: Filtering a noisy speech signal. • Reading: Selesnick’s notes and Voltz’s note (posted at NYU Classes) • Week 9 (Nov 3,5): FIR Filter Design • Linear phase FIR filters: why linear phase? The four types, properties • MATLAB demo: phase distortion demo • FIR filter design based on the minimax criterion (Parks-McClellan method). MATLAB functions: firpm, firpmord, firpm demo",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 3,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "demo",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 3,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "• Reading: Selesnick’s note (posted at NYU Classes). Optional: Oppenheim\nSecs. 8.5, 8.6, 8.8.\n• Oct 22: Midterm exam\n• Week 8 (Oct 27,29): DTFT/spectrum evaluation using DFT\n• Using FFT to evaluate DTFT, zero padding, understanding relation between\nfrequency and DFT freq. index.\n• Frequency leakage",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 3,
+      "type": "grading"
+    }
+  },
+  {
+    "text": "• FIR filter design using windows: effect of truncation and windowing, standard windows (Hamming, Hann, Blackman, Kaiser). MATLAB functions: Hamming, Kaiser, kaiserord, fir1 • MATLAB assignment 9: Filtering a noisy speech signal using FIR filters designed using different methods • Readings: Selesnick’s notes. Optional: Oppenheim Sec. 7.5-7.8, Sec. 10.1- 10.3 • Week 10 (Nov 10,12) : Recursive (IIR) filter design • Classic analog filters: Butterworth, Cheby1, Cheby2, elliptic; MATLAB functions: buttap, cheb1ap, cheb2ap, ellipap • Conversion of analog to digital filters: Bilinear transformation (BLT), MATLAB function: bilinear; • Filter transformations: LPF-> HPF, LPF->BPF, LPF->BSF, etc. • MATLAB demo: recursive filters demo; MATLAB functions: butter, cheby1, cheby2, ellip • MATLAB assignment 10: filtering of speech using IIR filters designed using different methods • Reading: Selesnick’s note and demo. Optional: Oppenheim Sec. 7.1-7.4 • Week 11 (Nov. 17,19) • Effect of non-linear phase on speech and images. • Zero-phase filtering: forward-backward filtering, MATLAB function: filtfilt • Minimum phase systems: definition, minimum delay property, Factorization of H(z) into the product of minimum phase and all-pass • Spectral factorization. • MATLAB assignment 11: filtering of image using IIR and FIR filters (linear phase and minimum phase), and using forward-backward filtering • Reading: Lecture notes",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 4,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "property, Factorization of H(z) into the product of minimum phase and all-pass • Spectral factorization. • MATLAB assignment 11: filtering of image using IIR and FIR filters (linear phase and minimum phase), and using forward-backward filtering • Reading: Lecture notes and demo in NYU Classes. Optional: Oppenheim Sec. 5.5, 5.6. • Week 12 (Nov 24, Dec 1) • Review of sampling theorem: Frequency domain representation, Reconstruction of a bandlimited signal from its samples • Discrete time processing of continuous time signals • Downsample a digital signal: Decimation filter design • Upsample a digital signal: Interpolation filter design • MATLAB assignment 12: Sampling rate conversion using different filters • Reading: Oppenheim Chap. 4. • Week 13 (Dec 3,8) Least squares methods • Convolution as a matrix product • Overdetermined and underdetermined linear equations • Using regularization (minimum energy, smoothness, etc.) • Constrained least squares • Least squares smoothing as an LTI filter",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 4,
+      "type": "normal"
+    }
+  },
+  {
+    "text": "• Least squares deconvolution as an LTI filter • Missing sample interpolation • Other example applications • MATLAB assignment 13: Least squares • Reading: Selesnick_LeastSquares.pdf • Week 14 (Dec 10) Miscellaneous • Dec 15: Final exam Last updated: August 24, Thomas Marzetta",
+    "meta": {
+      "file": "ECE_GY_6113 syllabus.pdf",
+      "page": 5,
+      "type": "normal"
+    }
+  }
+]
