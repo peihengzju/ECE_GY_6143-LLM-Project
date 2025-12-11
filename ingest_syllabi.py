@@ -17,7 +17,43 @@ TEXTS_PATH = os.path.join(INDEX_DIR, "texts.json")
 CHUNK_MAX_CHARS = 800
 CHUNK_OVERLAP_CHARS = 200
 
-E5_MODEL_NAME = "intfloat/multilingual-e5-base"
+E5_MODEL_NAME = "intfloat/multilingual-e5-large"
+
+
+# ========== 课程号推断 ==========
+
+COURSE_CODE_PATTERN = re.compile(r"(ECE[_\-\s]?GY[_\-\s]?(\d{4}))", re.IGNORECASE)
+
+
+def infer_course_from_filename(fname: str) -> str | None:
+    """
+    从文件名里推断课程号，统一成形如 'ECE-GY 6143'
+    例如：
+      ECE_GY_6143 syllabus.pdf
+      ece-gy6143_Syllabus_Fall2025.pdf
+    """
+    m = COURSE_CODE_PATTERN.search(fname)
+    if not m:
+        return None
+
+    raw = m.group(1).upper()  # ECE_GY_6143 / ECE-GY6143 / ECE GY 6143
+    raw = raw.replace("_", " ").replace("-", " ")
+    parts = raw.split()  # ['ECE', 'GY', '6143'] / ['ECEGY6143'] 之类
+
+    if len(parts) == 3 and parts[0] == "ECE" and parts[1] == "GY":
+        # ECE GY 6143 -> ECE-GY 6143
+        return f"{parts[0]}-{parts[1]} {parts[2]}"
+
+    if len(parts) == 2 and parts[0].startswith("ECE") and "GY" in parts[0]:
+        # 比如 ECEGY 6143 这种奇怪格式，兜底处理一下
+        return f"ECE-GY {parts[1]}"
+
+    # 兜底：至少保证有 ECE-GY 前缀
+    if " " in raw:
+        head, tail = raw.rsplit(" ", 1)
+        return f"{head.replace(' ', '-') } {tail}"
+
+    return raw
 
 
 # ========== 基础工具 ==========
@@ -157,8 +193,6 @@ def extract_grading_lines(text: str) -> List[str]:
 def extract_course_description(text: str) -> List[str]:
     """
     课程名 + 编号 + Description 那一段
-    典型格式：
-    ECE-GY 6143, CS-GY 6923:  Introduction to Machine Learning Description: ...
     """
     lines = [ln.rstrip() for ln in text.splitlines()]
     n = len(lines)
@@ -167,9 +201,7 @@ def extract_course_description(text: str) -> List[str]:
     for i, ln in enumerate(lines):
         low = ln.lower()
         if "description:" in low or low.startswith("description "):
-            # 向上找课程名行（可能包含 course code）
             start = max(0, i - 1)
-            # 向下扩展到下一空行或下一大标题
             j = i + 1
             while j < n:
                 nxt = lines[j].strip()
@@ -200,7 +232,6 @@ def extract_instructor_info(text: str) -> List[str]:
             while j < n:
                 nxt = lines[j]
                 low2 = nxt.lower()
-                # 延伸直到离开“老师/office hour/联系方式”的语境
                 if any(k in low2 for k in ["grader", "lecture", "class material", "prereq", "pre-requisites"]):
                     break
                 j += 1
@@ -266,7 +297,6 @@ def extract_schedule(text: str) -> List[str]:
     n = len(lines)
     chunks: List[str] = []
 
-    # 优先从 "Tentative Schedule" 标题开始
     for i, ln in enumerate(lines):
         low = ln.lower()
         if "tentative schedule" in low or "schedule of classes" in low:
@@ -282,7 +312,6 @@ def extract_schedule(text: str) -> List[str]:
             if len(window) >= 30 and window not in chunks:
                 chunks.append(window)
 
-    # 如果没有明显的标题，兜底抓含日期的行块
     if not chunks:
         date_pattern = re.compile(r"\b\d{1,2}/\d{1,2}/\d{2,4}\b")
         tmp_lines = []
@@ -306,7 +335,6 @@ def extract_exam_info(text: str) -> List[str]:
     for i, ln in enumerate(lines):
         low = ln.lower()
         if any(k in low for k in ["midterm", "final exam", "final  exam", "exam review"]):
-            # 把这行以及上下几行合并
             start = max(0, i - 2)
             end = min(len(lines), i + 3)
             window = _join_window(lines, start, end)
@@ -363,7 +391,6 @@ def extract_materials(text: str) -> List[str]:
             if len(window) >= 20 and window not in chunks:
                 chunks.append(window)
 
-    # 兜底：含 github / http 的行
     urls = []
     for ln in lines:
         if "http://" in ln or "https://" in ln or "github.com" in ln.lower():
@@ -437,10 +464,18 @@ def main():
     raw_texts, meta_list = load_all_pdfs()
 
     docs: List[Dict] = []
-    seen_texts = set()  # 全局去重，避免同一页抽出太多重复文本
+    seen_texts = set()
 
     for page_text, m in zip(raw_texts, meta_list):
-        # 1) normal：按行 + 字符长度切块
+        # 在这里根据文件名推断课程号，写进 meta
+        course = infer_course_from_filename(m["file"])
+
+        base_meta = {
+            **m,
+            "course": course,  # 关键字段
+        }
+
+        # 1) normal
         for c in chunk_by_lines(page_text):
             t = c.strip()
             if not t or t in seen_texts:
@@ -448,7 +483,7 @@ def main():
             seen_texts.add(t)
             docs.append({
                 "text": t,
-                "meta": {**m, "type": "normal"}
+                "meta": {**base_meta, "type": "normal"}
             })
 
         # 2) grading
@@ -458,7 +493,7 @@ def main():
                 seen_texts.add(t)
                 docs.append({
                     "text": t,
-                    "meta": {**m, "type": "grading_section"}
+                    "meta": {**base_meta, "type": "grading_section"}
                 })
 
         for gl in extract_grading_lines(page_text):
@@ -467,7 +502,7 @@ def main():
                 seen_texts.add(t)
                 docs.append({
                     "text": t,
-                    "meta": {**m, "type": "grading_line"}
+                    "meta": {**base_meta, "type": "grading_line"}
                 })
 
         # 3) 课程描述
@@ -477,7 +512,7 @@ def main():
                 seen_texts.add(t)
                 docs.append({
                     "text": t,
-                    "meta": {**m, "type": "course_description"}
+                    "meta": {**base_meta, "type": "course_description"}
                 })
 
         # 4) 老师 / TA / 上课信息
@@ -487,7 +522,7 @@ def main():
                 seen_texts.add(t)
                 docs.append({
                     "text": t,
-                    "meta": {**m, "type": "instructor"}
+                    "meta": {**base_meta, "type": "instructor"}
                 })
 
         for chunk in extract_graders_info(page_text):
@@ -496,7 +531,7 @@ def main():
                 seen_texts.add(t)
                 docs.append({
                     "text": t,
-                    "meta": {**m, "type": "grader"}
+                    "meta": {**base_meta, "type": "grader"}
                 })
 
         for chunk in extract_lecture_info(page_text):
@@ -505,7 +540,7 @@ def main():
                 seen_texts.add(t)
                 docs.append({
                     "text": t,
-                    "meta": {**m, "type": "lecture_info"}
+                    "meta": {**base_meta, "type": "lecture_info"}
                 })
 
         # 5) schedule / exam
@@ -515,7 +550,7 @@ def main():
                 seen_texts.add(t)
                 docs.append({
                     "text": t,
-                    "meta": {**m, "type": "schedule"}
+                    "meta": {**base_meta, "type": "schedule"}
                 })
 
         for chunk in extract_exam_info(page_text):
@@ -524,7 +559,7 @@ def main():
                 seen_texts.add(t)
                 docs.append({
                     "text": t,
-                    "meta": {**m, "type": "exam"}
+                    "meta": {**base_meta, "type": "exam"}
                 })
 
         # 6) prereq / materials / project / homework / online format
@@ -534,7 +569,7 @@ def main():
                 seen_texts.add(t)
                 docs.append({
                     "text": t,
-                    "meta": {**m, "type": "prerequisites"}
+                    "meta": {**base_meta, "type": "prerequisites"}
                 })
 
         for chunk in extract_materials(page_text):
@@ -543,7 +578,7 @@ def main():
                 seen_texts.add(t)
                 docs.append({
                     "text": t,
-                    "meta": {**m, "type": "materials"}
+                    "meta": {**base_meta, "type": "materials"}
                 })
 
         for chunk in extract_project_info(page_text):
@@ -552,7 +587,7 @@ def main():
                 seen_texts.add(t)
                 docs.append({
                     "text": t,
-                    "meta": {**m, "type": "project"}
+                    "meta": {**base_meta, "type": "project"}
                 })
 
         for chunk in extract_homework_lab(page_text):
@@ -561,7 +596,7 @@ def main():
                 seen_texts.add(t)
                 docs.append({
                     "text": t,
-                    "meta": {**m, "type": "homework_lab"}
+                    "meta": {**base_meta, "type": "homework_lab"}
                 })
 
         for chunk in extract_online_format(page_text):
@@ -570,7 +605,7 @@ def main():
                 seen_texts.add(t)
                 docs.append({
                     "text": t,
-                    "meta": {**m, "type": "online_format"}
+                    "meta": {**base_meta, "type": "online_format"}
                 })
 
     print(f"共 {len(docs)} 个 chunk（含多种类型）")

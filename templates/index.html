@@ -1,0 +1,513 @@
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>NYU Course Selection Assistant</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+
+        .side-logo {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: var(--side-logo-width); 
+            height: auto;
+            object-fit: contain;
+            z-index: 1;
+            opacity: 1;                  
+        }
+
+        .side-logo-left {
+            left: calc((50% - 480px - var(--side-logo-width)) / 2);
+        }
+
+        .side-logo-right {
+            right: calc((50% - 480px - var(--side-logo-width)) / 2);
+        }
+
+        @media (max-width: 900px) {
+            .side-logo {
+                display: none;
+            }
+        }
+            :root {
+                --side-logo-width: clamp(200px, 25vw, 400px);
+                --bg: #57068c;
+                --panel: #ffffff;
+                --border: #e0e0e5;
+                --accent: #57068c;
+                --accent-soft: #f5e8ff;
+                --text-main: #f9fafb;   /* default text on purple background */
+                --text-muted: #e5d2ff;  /* muted text on purple background */
+                --error: #b91c1c;
+            }
+            * { box-sizing: border-box; }
+            body {
+                margin: 0;
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                background: var(--bg);
+                color: var(--text-main);
+            }
+            .page {
+                max-width: 960px;
+                margin: 0 auto;
+                padding: 24px 16px 32px;
+            }
+            header.site-header {
+                border-bottom: 1px solid rgba(255,255,255,0.25);
+                padding-bottom: 16px;
+                margin-bottom: 24px;
+            }
+            .site-title-row {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .site-logo {
+                width: 70px;
+                height: 56px;
+                border-radius: 0;
+                object-fit: contain;
+                background: transparent;
+                padding: 0;
+            }
+            .site-title-text {
+                display: flex;
+                flex-direction: column;
+            }
+            .site-title {
+                font-size: 18px;
+                font-weight: 600;
+                color: #ffffff;
+            }
+            .site-subtitle {
+                font-size: 13px;
+                color: var(--text-muted);
+            }
+
+            main {
+                display: grid;
+                grid-template-columns: minmax(0, 3fr);
+                gap: 24px;
+            }
+
+            /* panels on white background use dark text */
+            .intro-panel,
+            .qa-list,
+            .input-panel {
+                background: var(--panel);
+                border-radius: 12px;
+                border: 1px solid var(--border);
+                color: #111827;
+            }
+
+            .intro-panel {
+                margin-bottom: 16px;
+                padding: 16px 18px;
+            }
+            .intro-title {
+                font-size: 15px;
+                font-weight: 600;
+                margin-bottom: 4px;
+            }
+            .intro-text {
+                font-size: 13px;
+                color: #4b5563;
+                margin-bottom: 10px;
+            }
+            .example-questions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-top: 4px;
+            }
+            .example-pill {
+                font-size: 12px;
+                padding: 4px 8px;
+                border-radius: 999px;
+                border: 1px solid #d1d5db;
+                background: #f9fafb;
+                cursor: pointer;
+            }
+            .example-pill:hover {
+                background: #f3f4f6;
+            }
+
+            .qa-section-title {
+                font-size: 14px;
+                font-weight: 600;
+                margin: 16px 0 8px;
+                color: #f9fafb;  /* title on purple background */
+            }
+
+            .qa-list {
+                padding: 12px 16px;
+                max-height: 60vh;
+                overflow-y: auto;
+            }
+            .qa-empty-hint {
+                font-size: 13px;
+                color: #4b5563;
+                text-align: center;
+                margin: 24px 0 12px;
+            }
+            .qa-item {
+                padding: 10px 0;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            .qa-item:last-child {
+                border-bottom: none;
+            }
+            .qa-label {
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                margin-bottom: 2px;
+            }
+            .qa-label-question {
+                color: #003F88;
+            }
+            .qa-label-answer {
+                color: #B01F24;
+            }
+            .qa-question {
+                font-size: 14px;
+                margin-bottom: 4px;
+            }
+            .qa-answer {
+                font-size: 14px;
+                background: #f9fafb;
+                border-radius: 8px;
+                padding: 8px 10px;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+
+            .qa-meta {
+                font-size: 11px;
+                color: #6b7280;
+                margin-top: 4px;
+            }
+
+            .input-panel {
+                margin-top: 24px;
+                padding: 14px 16px 12px;
+            }
+            .input-label {
+                font-size: 13px;
+                font-weight: 500;
+                margin-bottom: 6px;
+            }
+            .input-hint {
+                font-size: 12px;
+                color: #4b5563;
+                margin-bottom: 8px;
+            }
+            .input-row {
+                display: flex;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            .input-wrap {
+                flex: 1;
+            }
+            textarea#question {
+                width: 100%;
+                resize: none;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+                padding: 8px 10px;
+                font-size: 14px;
+                line-height: 1.4;
+                font-family: inherit;
+                min-height: 60px;
+                max-height: 120px;
+                outline: none;
+                background: #ffffff;
+                color: #111827;
+            }
+            textarea#question::placeholder {
+                color: #9ca3af;
+            }
+            textarea#question:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 1px rgba(87,6,140,0.35);
+            }
+            button#sendBtn {
+                border: none;
+                border-radius: 999px;
+                padding: 10px 16px;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                background: var(--accent);
+                color: #ffffff;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                flex-shrink: 0;
+            }
+            button#sendBtn:disabled {
+                opacity: 0.5;
+                cursor: default;
+            }
+            .send-icon {
+                width: 14px;
+                height: 14px;
+                border-radius: 999px;
+                border: 2px solid white;
+                border-left-color: transparent;
+                border-bottom-color: transparent;
+                transform: rotate(45deg);
+            }
+
+            .status-bar {
+                margin-top: 6px;
+                font-size: 11px;
+                color: #4b5563;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .status-error {
+                color: var(--error);
+            }
+            .status-loading-dot::after {
+                content: "…";
+                animation: dots 1.2s steps(3, end) infinite;
+            }
+            @keyframes dots {
+                0%, 20% { content: ""; }
+                40% { content: "."; }
+                60% { content: ".."; }
+                80%, 100% { content: "..."; }
+            }
+
+            footer {
+                margin-top: 18px;
+                font-size: 11px;
+                color: var(--text-muted);
+                text-align: right;
+            }
+
+            @media (max-width: 640px) {
+                main {
+                    grid-template-columns: minmax(0, 1fr);
+                }
+                .page {
+                    padding: 16px 10px 24px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <img src="/static/nyu-logo.png" alt="NYU logo" class="side-logo side-logo-left">
+        <div class="page">
+            <header class="site-header">
+                <div class="site-title-row">
+                    <div class="site-title-text">
+                        <div class="site-title">NYU Course Selection Assistant</div>
+                        <div class="site-subtitle">
+                            Ask syllabus-based questions to compare courses and plan your study path.
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main>
+                <section style="min-width:0;">
+                    <div class="intro-panel">
+                        <div class="intro-title">What does this tool do?</div>
+                        <div class="intro-text">
+                            This assistant answers questions strictly based on uploaded NYU syllabi.
+                            It can help you understand grading, workload, topics, exam dates, and more.
+                        </div>
+                        <div class="intro-text">
+                            Try one of the example questions:
+                        </div>
+                        <div class="example-questions">
+                            <button class="example-pill" data-example="I want to learn machine learning. Which course should I take?">
+                                I want to learn machine learning…
+                            </button>
+                            <button class="example-pill" data-example="What is the grading breakdown for ECE-GY 6143?">
+                                Grading for ECE-GY 6143
+                            </button>
+                            <button class="example-pill" data-example="When is the final exam for ECE-GY 6143?">
+                                Final exam date
+                            </button>
+                        </div>
+                    </div>
+
+                    <h2 class="qa-section-title">Question &amp; Answer History</h2>
+                    <div id="qaList" class="qa-list">
+                        <div class="qa-empty-hint">
+                            No questions yet. Ask something about a course syllabus to get started.
+                        </div>
+                    </div>
+
+                    <div class="input-panel">
+                        <div class="input-label">Ask a new question</div>
+                        <div class="input-hint">
+                            Please be specific. For example: “What is the final exam weight for ECE-GY 6143?”
+                            Press <strong>Ctrl+Enter</strong> to send.
+                        </div>
+                        <div class="input-row">
+                            <div class="input-wrap">
+                                <textarea id="question" rows="3"
+                                    placeholder="Type your question here… (Enter = new line, Ctrl+Enter = send)"></textarea>
+                            </div>
+                            <button id="sendBtn" disabled>
+                                <span>Send</span>
+                                <span class="send-icon"></span>
+                            </button>
+                        </div>
+                        <div class="status-bar">
+                            <span id="statusText"></span>
+                            <span>Backend: RAG over syllabi + local Qwen model</span>
+                        </div>
+                    </div>
+
+                    <footer>
+                        This tool only answers based on information explicitly written in the syllabi.
+                    </footer>
+                </section>
+            </main>
+        </div>
+
+        <script>
+            const textarea = document.getElementById("question");
+            const sendBtn = document.getElementById("sendBtn");
+            const qaList = document.getElementById("qaList");
+            const statusText = document.getElementById("statusText");
+            const exampleButtons = document.querySelectorAll(".example-pill");
+
+            let isSending = false;
+
+            function setStatus(text, isError = false, isLoading = false) {
+                statusText.textContent = text || "";
+                statusText.className = "";
+                if (isError) statusText.classList.add("status-error");
+                if (isLoading) statusText.classList.add("status-loading-dot");
+            }
+
+            function clearEmptyHint() {
+                const hint = document.querySelector(".qa-empty-hint");
+                if (hint) hint.remove();
+            }
+
+            function appendQA(question, answer) {
+                clearEmptyHint();
+
+                const item = document.createElement("div");
+                item.className = "qa-item";
+
+                const qLabel = document.createElement("div");
+                qLabel.className = "qa-label qa-label-question";
+                qLabel.textContent = "Question";
+
+                const qText = document.createElement("div");
+                qText.className = "qa-question";
+                qText.textContent = question;
+
+                const aLabel = document.createElement("div");
+                aLabel.className = "qa-label qa-label-answer";
+                aLabel.style.marginTop = "6px";
+                aLabel.textContent = "Answer";
+
+                const aText = document.createElement("div");
+                aText.className = "qa-answer";
+                aText.textContent = answer;
+
+                item.appendChild(qLabel);
+                item.appendChild(qText);
+                item.appendChild(aLabel);
+                item.appendChild(aText);
+
+                qaList.appendChild(item);
+                qaList.scrollTop = qaList.scrollHeight;
+            }
+
+            function updateSendButtonState() {
+                const hasText = textarea.value.trim().length > 0;
+                sendBtn.disabled = !hasText || isSending;
+            }
+
+            async function sendQuestion() {
+                const question = textarea.value.trim();
+                if (!question || isSending) return;
+
+                isSending = true;
+                updateSendButtonState();
+                setStatus("Sending question to the backend", false, true);
+
+                const currentQuestion = question;
+                textarea.value = "";
+                updateSendButtonState();
+
+                try {
+                    const resp = await fetch("/ask", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ question: currentQuestion })
+                    });
+
+                    if (!resp.ok) {
+                        const txt = await resp.text();
+                        appendQA(currentQuestion, "Backend error: " + txt);
+                        setStatus("Backend error", true, false);
+                    } else {
+                        const data = await resp.json();
+                        if (data.error) {
+                            appendQA(currentQuestion, "Error: " + data.error);
+                            setStatus("Request failed", true, false);
+                        } else {
+                            appendQA(currentQuestion, data.answer || "(empty answer)");
+                            setStatus("", false, false);
+                        }
+                    }
+                } catch (err) {
+                    console.error(err);
+                    appendQA(currentQuestion, "Request failed. Is the backend running?");
+                    setStatus("Request failed", true, false);
+                } finally {
+                    isSending = false;
+                    updateSendButtonState();
+                }
+            }
+
+            sendBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                sendQuestion();
+            });
+
+            textarea.addEventListener("input", () => {
+                updateSendButtonState();
+                textarea.style.height = "auto";
+                const maxHeight = 120;
+                textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + "px";
+            });
+
+            textarea.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        sendQuestion();
+                    }
+                }
+            });
+
+            exampleButtons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const example = btn.getAttribute("data-example") || "";
+                    textarea.value = example;
+                    textarea.focus();
+                    textarea.dispatchEvent(new Event("input"));
+                });
+            });
+
+            setStatus("Tip: Ctrl+Enter to send");
+            updateSendButtonState();
+        </script>
+    </body>
+    </html>
