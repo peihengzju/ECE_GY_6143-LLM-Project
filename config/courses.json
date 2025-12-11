@@ -1,0 +1,22 @@
+{
+  "courses": [
+    {
+      "code": "ECE-GY 6143",
+      "name": "Introduction to Machine Learning",
+      "focus": "machine learning, statistics, supervised and unsupervised learning",
+      "keywords": ["6143", "machine learning", "机器学习", "ml"]
+    },
+    {
+      "code": "ECE-GY 6913",
+      "name": "Computer System Architecture",
+      "focus": "RISC-V instruction set, pipelined processor, cache, memory hierarchy, low-level architecture",
+      "keywords": ["6913", "architecture", "RISC-V", "computer system"]
+    },
+    {
+      "code": "ECE-GY 6483",
+      "name": "Real Time Embedded Systems",
+      "focus": "ARM Cortex-M, STM32, real-time OS, peripherals, embedded C",
+      "keywords": ["6483", "embedded", "STM32", "real-time", "嵌入式"]
+    }
+  ]
+}
