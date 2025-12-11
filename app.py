@@ -10,15 +10,45 @@ from sentence_transformers import SentenceTransformer
 import requests
 from flask import Flask, request, jsonify, render_template
 from typing import Optional
+from itertools import count
+from abc import ABC, abstractmethod
 
+TURN_COUNTER = count(1)  # 1,2,3,... 每次 next() 加 1
 LAST_RETRIEVAL_DEBUG = {}
+# ====== Memory RAG 配置 ======
+MEMORY_DIR = "memory_store"
+MEMORY_INDEX_PATH = os.path.join(MEMORY_DIR, "mem_index.faiss")
+MEMORY_TEXTS_PATH = os.path.join(MEMORY_DIR, "memories.json")
+
+os.makedirs(MEMORY_DIR, exist_ok=True)
+
+if not os.path.exists(MEMORY_TEXTS_PATH):
+    with open(MEMORY_TEXTS_PATH, "w", encoding="utf-8") as f:
+        json.dump([], f, ensure_ascii=False, indent=2)
+
+# 记忆槽类型
+MEMORY_SLOTS = {
+    "profile",        # 个人信息：姓名、学校、专业、背景
+    "preference",     # 长期偏好：想学什么、风格偏好
+    "fact",           # 重要事实：比如“我是 NYU ECE”、“我想走 AI infra”
+    "recent"          # 临时上下文：最近 5～10 轮
+}
+
+# 不同槽采用不同的过期 / 权重策略
+MEMORY_EXPIRY_DAYS = {
+    "profile":   None,   # 永不过期
+    "preference": 365,   # 软过期，一年
+    "fact":      180,    # 半年
+    "recent":     7      # 一周
+}
+
 # ====== RAG 部分配置 ======
 INDEX_DIR = "vector_store"
 INDEX_PATH = os.path.join(INDEX_DIR, "index.faiss")
 TEXTS_PATH = os.path.join(INDEX_DIR, "texts.json")
 
 E5_MODEL_NAME = "intfloat/multilingual-e5-large"
-
+emb_model = SentenceTransformer(E5_MODEL_NAME)
 TOP_K = 10                 # 最终送给大模型的 chunk 数量
 FAISS_RAW_K = 24           # 先从 Faiss 拿更多候选，再做二次排序
 MAX_CONTEXT_CHARS = 3600   # 拼接给大模型的 syllabus 总长度上限
@@ -55,6 +85,460 @@ QWEN_API_URL = "http://127.0.0.1:8000/v1/chat/completions"
 QWEN_MODEL_NAME = "Qwen/Qwen3-4B-Instruct-2507-FP8"
 QWEN_MAX_TOKENS = 2048
 
+from dataclasses import dataclass, asdict
+from datetime import datetime
+from typing import Literal, Any
+
+MemorySlot = Literal["profile", "preference", "fact", "recent"]
+
+@dataclass
+class MemoryItem:
+    id: int
+    slot: MemorySlot
+    text: str                  # 可能是摘要后的文本
+    importance: int            # 0 = 一般，1 = 中等，2 = 很重要
+    created_at: str            # ISO 字符串
+    last_used_at: str          # 上次被检索到的时间
+    extra: Dict[str, Any]      # 额外 meta, 比如 { "source_turn": 12 }
+
+class MemoryAggregator(ABC):
+    """
+    通用聚合记忆基类：
+    - kind: 用于 extra["kind"] 标记聚合类型（如 'career_direction', 'profile_aggregate'）
+    - slot: 这个聚合记忆属于哪个槽（profile / preference / fact / recent）
+    - base_importance: 聚合记忆的基础重要度
+    """
+    kind: str
+    slot: MemorySlot
+    base_importance: int
+
+    @abstractmethod
+    def extract_entities(self, text: str) -> list[str]:
+        """
+        从一轮对话（question+answer）里抽取该聚合类型的“实体列表”。
+        没有就返回 []。
+        """
+        ...
+
+    def render_text(self, entities: list[str]) -> str:
+        """
+        把实体列表渲染成一条人类可读的记忆文本。
+        子类可以重写。
+        """
+        return f"{self.kind}: " + ", ".join(entities)
+
+    def upsert(self,
+               items: List[MemoryItem],
+               question: str,
+               answer: str,
+               source_turn: int) -> List[MemoryItem]:
+        """
+        在 MemoryItem 列表里“更新/插入”一条聚合记忆：
+        - 找到 extra['kind'] == self.kind 的那条
+        - 合并实体列表
+        - 更新 text / last_used_at / importance
+        - 如果不存在就新建一条
+        """
+        raw = (question or "") + "\n" + (answer or "")
+        entities = self.extract_entities(raw)
+        if not entities:
+            return items
+
+        now = datetime.utcnow().isoformat()
+        existing: Optional[MemoryItem] = None
+        for m in items:
+            if m.extra.get("kind") == self.kind:
+                existing = m
+                break
+
+        if existing is not None:
+            old_entities = set(existing.extra.get("entities", []))
+            merged = sorted(old_entities | set(entities))
+            existing.extra["entities"] = merged
+            existing.text = self.render_text(merged)
+            existing.last_used_at = now
+            # importance 用聚合自身的 base_importance 覆盖一下原值（可选）
+            existing.importance = self.base_importance
+        else:
+            new_id = (max((m.id for m in items), default=0) + 1) if items else 1
+            merged = sorted(set(entities))
+            mem = MemoryItem(
+                id=new_id,
+                slot=self.slot,
+                text=self.render_text(merged),
+                importance=self.base_importance,
+                created_at=now,
+                last_used_at=now,
+                extra={
+                    "kind": self.kind,
+                    "entities": merged,
+                    "source_turn": source_turn,
+                },
+            )
+            items.append(mem)
+
+        return items
+
+from pathlib import Path
+
+if not Path(MEMORY_TEXTS_PATH).exists():
+    with open(MEMORY_TEXTS_PATH, "w", encoding="utf-8") as f:
+        json.dump([], f, ensure_ascii=False, indent=2)
+
+def _load_memories() -> List[MemoryItem]:
+    # 文件不存在 → 没有任何记忆
+    if not os.path.exists(MEMORY_TEXTS_PATH):
+        return []
+
+    try:
+        with open(MEMORY_TEXTS_PATH, "r", encoding="utf-8") as f:
+            content = f.read().strip()
+
+        # 文件存在但被清空了（内容是空字符串）→ 当作空列表
+        if not content:
+            return []
+
+        arr = json.loads(content)
+    except Exception:
+        # 文件内容损坏 / 不是合法 JSON → 重置为 []
+        arr = []
+        with open(MEMORY_TEXTS_PATH, "w", encoding="utf-8") as f:
+            json.dump([], f, ensure_ascii=False, indent=2)
+
+    return [MemoryItem(**m) for m in arr]
+
+
+def _save_memories(items: List[MemoryItem]) -> None:
+    with open(MEMORY_TEXTS_PATH, "w", encoding="utf-8") as f:
+        json.dump([asdict(m) for m in items], f, ensure_ascii=False, indent=2)
+
+def _rebuild_mem_index(items: Optional[List[MemoryItem]] = None) -> None:
+    """
+    根据当前所有 MemoryItem 重新构建 mem_index。
+    聚合记忆会修改已有条目，所以不能只做 incremental add。
+    """
+    global mem_index
+
+    if items is None:
+        items = _load_memories()
+
+    # 还没有任何记忆，建一个空 index 即可
+    if not items:
+        dummy = emb_model.encode(["query: dummy"], convert_to_numpy=True, normalize_embeddings=True)[0]
+        d = len(dummy)
+        mem_index = faiss.IndexFlatIP(d)
+        _save_mem_index()
+        return
+
+    # 正常重建
+    dummy = emb_model.encode(["query: dummy"], convert_to_numpy=True, normalize_embeddings=True)[0]
+    d = len(dummy)
+    mem_index = faiss.IndexFlatIP(d)
+
+    texts = [f"passage: {m.text}" for m in items]
+    embs = emb_model.encode(
+        texts,
+        convert_to_numpy=True,
+        normalize_embeddings=True
+    ).astype("float32")
+
+    mem_index.add(embs)
+    _save_mem_index()
+
+def reset_memories() -> None:
+    """
+    清空所有记忆：
+    - 把 memories.json 重置为 []
+    - 把 mem_index 清空
+    """
+    global mem_index
+
+    # 1) 重置 JSON 文件为合法的空数组
+    with open(MEMORY_TEXTS_PATH, "w", encoding="utf-8") as f:
+        json.dump([], f, ensure_ascii=False, indent=2)
+
+    # 2) 重置 Faiss index（保持维度不变）
+    d = mem_index.d  # 当前向量维度
+    mem_index = faiss.IndexFlatIP(d)
+    _save_mem_index()
+
+# 记忆向量索引，全局变量
+if os.path.exists(MEMORY_INDEX_PATH):
+    mem_index = faiss.read_index(MEMORY_INDEX_PATH)
+else:
+    # 维度和 emb_model 一致
+    dummy = emb_model.encode(["query: dummy"], convert_to_numpy=True, normalize_embeddings=True)[0]
+    d = len(dummy)
+    mem_index = faiss.IndexFlatIP(d)  # 内积，embedding 已经 normalize，相当于余弦相似度
+    faiss.write_index(mem_index, MEMORY_INDEX_PATH)
+
+def _save_mem_index():
+    faiss.write_index(mem_index, MEMORY_INDEX_PATH)
+
+def _build_dialogue_snippet(question: str, answer: str) -> str:
+    return f"User: {question}\nAssistant: {answer}"
+
+def summarize_dialogue_with_qwen(snippet: str, max_words: int = 80) -> str:
+    """
+    把一段较长的对话压缩成一条简短摘要，用于记忆存储。
+    """
+    system_prompt = (
+        "You are a memory compression assistant.\n"
+        "Task: Summarize the given user–assistant dialogue into a short factual memory.\n"
+        "Rules:\n"
+        f"1) Use at most {max_words} English words.\n"
+        "2) Capture stable facts (user profile, preferences, goals, important decisions).\n"
+        "3) Do not include ephemeral details or step-by-step reasoning.\n"
+        "4) Output only the summary, no explanation."
+    )
+
+    user_prompt = (
+        "Dialogue:\n"
+        f"{snippet}\n\n"
+        "Summarize this into a single short memory sentence."
+    )
+
+    payload = {
+        "model": QWEN_MODEL_NAME,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user",  "content": user_prompt},
+        ],
+        "max_tokens": 128,
+        "temperature": 0.1,
+        "top_p": 0.8,
+    }
+
+    try:
+        resp = requests.post(QWEN_API_URL, json=payload, timeout=60)
+        resp.raise_for_status()
+        data = resp.json()
+        summary = (data["choices"][0]["message"]["content"] or "").strip()
+        return summary if summary else snippet[:200]
+    except Exception:
+        # 摘要失败就退回截断原文
+        return snippet[:200]
+
+def classify_memory_slot(question: str, answer: str) -> tuple[MemorySlot, int]:
+    """
+    粗暴版分类：
+    - 提到学校/专业/背景 → profile
+    - 提到“想做什么 / 想学什么 / 兴趣方向” → preference
+    - 明确的事实陈述（“我已经…”，“我打算…”）→ fact
+    - 其他默认 recent
+    importance: 2 = 很关键, 1 = 一般重要, 0 = 临时
+    """
+    q = question.lower()
+    a = answer.lower()
+    text = q + " " + a
+
+    # profile
+    if any(k in text for k in ["nyu", "tandon", "ece", "major", "degree", "master", "phd"]):
+        return "profile", 2
+
+    # preference
+    if any(k in text for k in ["i want to learn", "i want to do", "i prefer", "我想学", "我想做", "我更想"]):
+        return "preference", 2
+
+    # important fact
+    if any(k in text for k in ["i decided", "i will", "i plan to", "我决定", "打算", "已经辞职", "已经报名"]):
+        return "fact", 2
+
+    # 默认 recent
+    return "recent", 0
+
+class CareerDirectionAggregator(MemoryAggregator):
+    kind = "career_direction"
+    slot: MemorySlot = "preference"
+    base_importance = 3
+
+    def extract_entities(self, text: str) -> list[str]:
+        t = text.lower()
+        dirs = set()
+
+        # AI infra / 系统底层
+        if any(k in t for k in ["ai infra", "ai infrastructure", "系统底层", "system-level", "low-level"]):
+            dirs.add("AI infrastructure / low-level systems")
+
+        # 嵌入式
+        if any(k in t for k in ["embedded", "嵌入式"]):
+            dirs.add("embedded systems")
+
+        # 分布式 / 存储 / GPU 调度
+        if any(k in t for k in ["distributed system", "distributed systems", "分布式"]):
+            dirs.add("distributed systems")
+        if any(k in t for k in ["storage", "存储"]):
+            dirs.add("storage systems")
+        if any(k in t for k in ["gpu 调度", "gpu scheduling", "gpu scheduler"]):
+            dirs.add("GPU scheduling")
+
+        # 芯片 / VLSI / ASIC / IC design
+        if any(k in t for k in ["芯片", "chip", "ic design", "集成电路"]):
+            dirs.add("chip / IC design")
+        if "vlsi" in t:
+            dirs.add("VLSI design")
+        if "asic" in t:
+            dirs.add("ASIC design")
+
+        return sorted(dirs)
+
+    def render_text(self, entities: list[str]) -> str:
+        return "User's long-term career directions: " + ", ".join(entities)
+
+class ProfileAggregator(MemoryAggregator):
+    kind = "profile_aggregate"
+    slot: MemorySlot = "profile"
+    base_importance = 3
+
+    def extract_entities(self, text: str) -> list[str]:
+        t = text.lower()
+        ents = set()
+
+        if "nyu" in t and "tandon" in t:
+            ents.add("NYU Tandon")
+        if "ece" in t or "electrical and computer engineering" in t:
+            ents.add("ECE master's student")
+        if "brooklyn" in t:
+            ents.add("based in Brooklyn")
+        if "master" in t or "硕士" in t:
+            ents.add("graduate student")
+
+        return sorted(ents)
+
+    def render_text(self, entities: list[str]) -> str:
+        return "User's profile: " + ", ".join(entities)
+    
+AGGREGATORS: List[MemoryAggregator] = [
+    CareerDirectionAggregator(),
+    ProfileAggregator(),
+    # 以后你要加 SkillsAggregator、PreferenceAggregator，直接加到这里
+]
+
+def add_memory_from_turn(question: str, answer: str, source_turn: int) -> None:
+    snippet = _build_dialogue_snippet(question, answer)
+    # 超过 700 字做摘要
+    if len(snippet) > 700:
+        text = summarize_dialogue_with_qwen(snippet, max_words=80)
+    else:
+        text = snippet
+
+    # ===== 1) 先写一条“原始记忆条目” =====
+    slot, importance = classify_memory_slot(question, answer)
+
+    items = _load_memories()
+    new_id = (max((m.id for m in items), default=0) + 1) if items else 1
+    now = datetime.utcnow().isoformat()
+
+    raw_mem = MemoryItem(
+        id=new_id,
+        slot=slot,
+        text=text,
+        importance=importance,
+        created_at=now,
+        last_used_at=now,
+        extra={"source_turn": source_turn}
+    )
+    items.append(raw_mem)
+
+    # ===== 2) 跑所有 Aggregator，生成/更新聚合记忆条目 =====
+    for agg in AGGREGATORS:
+        items = agg.upsert(items, question, answer, source_turn)
+
+    # ===== 3) 统一落盘 + 重建向量索引 =====
+    _save_memories(items)
+    _rebuild_mem_index(items)
+
+
+def _time_decay(slot: MemorySlot, created_at: str) -> float:
+    """
+    根据创建时间和槽类型，算一个 [0, 1] 的时间权重。
+    """
+    expiry_days = MEMORY_EXPIRY_DAYS.get(slot)
+    if expiry_days is None:
+        return 1.0  # 永不过期，时间权重恒 1
+
+    created = datetime.fromisoformat(created_at)
+    now = datetime.utcnow()
+    delta_days = (now - created).days
+
+    if delta_days <= 0:
+        return 1.0
+    if delta_days >= expiry_days:
+        return 0.0
+
+    # 简单线性衰减 (你也可以改成 exp 衰减)
+    return max(0.0, 1.0 - delta_days / expiry_days)
+
+
+def retrieve_memories(question: str,
+                      top_k: int = 5,
+                      alpha: float = 0.5,
+                      beta: float = 1.0) -> List[MemoryItem]:
+    """
+    检索记忆：
+    overall_score = embedding_sim + alpha * time_decay + beta * importance
+    embedding_sim = 内积结果（[-1,1]）
+    """
+    items = _load_memories()
+    if not items or mem_index.ntotal == 0:
+        return []
+
+    # query embedding
+    q_text = f"query: {question}"
+    q_emb = emb_model.encode(
+        [q_text],
+        convert_to_numpy=True,
+        normalize_embeddings=True
+    ).astype("float32")
+
+    # 向量检索
+    k = min(top_k * 4, mem_index.ntotal)  # 先拿多一点候选
+    sims, idxs = mem_index.search(q_emb, k)  # 内积 → sims 越大越相似
+    sims = sims[0]
+    idxs = idxs[0]
+
+    scored: List[tuple[float, MemoryItem]] = []
+
+    for sim, idx in zip(sims, idxs):
+        if idx < 0 or idx >= len(items):
+            continue
+        m = items[idx]
+        t_decay = _time_decay(m.slot, m.created_at)
+        imp = m.importance
+
+        overall = float(sim) + alpha * t_decay + beta * imp
+
+        kind = m.extra.get("kind")
+        if kind == "career_direction":
+            overall += 1.0
+        elif kind == "profile_aggregate":
+            overall += 0.8
+        # 以后你有 skills_aggregate 等，可以在这里扩展
+
+        scored.append((overall, m))
+
+    # 排序取前 top_k
+    scored.sort(key=lambda x: x[0], reverse=True)
+    top_items = [m for _, m in scored[:top_k]]
+
+    # 更新 last_used_at
+    now = datetime.utcnow().isoformat()
+    id_set = {m.id for m in top_items}
+    for m in items:
+        if m.id in id_set:
+            m.last_used_at = now
+    _save_memories(items)
+
+    return top_items
+
+def format_memories_block(mem_items: List[MemoryItem]) -> str:
+    if not mem_items:
+        return "(No retrieved memories.)"
+    lines = []
+    for m in mem_items:
+        # 简单一点：用 [slot#importance] 前缀
+        lines.append(f"[{m.slot} | importance={m.importance}] {m.text}")
+    return "\n".join(lines)
 
 # ====== 加载向量索引和文本 ======
 print("[RAG] Loading Faiss index and texts ...")
@@ -62,8 +546,6 @@ faiss_index = faiss.read_index(INDEX_PATH)
 with open(TEXTS_PATH, "r", encoding="utf-8") as f:
     DOCS: List[Dict] = json.load(f)
 print(f"[RAG] Loaded {len(DOCS)} chunks")
-
-emb_model = SentenceTransformer(E5_MODEL_NAME)
 
 def refine_question_with_qwen(question: str) -> str:
     """
@@ -221,6 +703,17 @@ def detect_priority_types(question: str) -> set[str]:
 
     return types
 
+def is_course_comparison_question(question: str) -> bool:
+    q = question.lower()
+    return (
+        "还是" in question or
+        "比较" in question or
+        "对比" in question or
+        " or " in q or
+        "vs" in q or
+        "versus" in q
+    )
+
 def is_course_selection_question(question: str) -> bool:
     q = question.lower()
     # 英文触发词
@@ -256,6 +749,100 @@ def is_course_selection_question(question: str) -> bool:
         return True
 
     return False
+
+def is_syllabus_question(question: str) -> bool:
+    """
+    判断是不是“问课程 / syllabus / grading / exam / 作业”这类问题。
+    只有这类问题才触发 syllabus RAG。
+    """
+    q = question.lower()
+
+    # 1) 有明确课程号
+    if _extract_course_codes(question):
+        return True
+
+    # 2) 出现 NYU Tandon 课程常见关键词
+    if any(k in q for k in [
+        "ece-gy", "cs-gy", "syllabus",
+        "grading", "grade", "exam", "midterm", "final", "quiz",
+        "homework", "assignment", "project", "lab",
+        "office hour", "instructor", "professor",
+    ]):
+        return True
+
+    # 3) 中文关键词：课程 / 作业 / 考试 / 占比 等
+    if any(k in question for k in [
+        "这门课", "课程内容", "上课时间", "作业", "考试",
+        "期末", "期中", "占比", "评分", "成绩", "先修课", "难度",
+    ]):
+        return True
+
+    return False
+
+def answer_course_comparison_question(original_question, retrieval_question):
+    # 1) 抽取两个课程代码
+    codes = _extract_course_codes(original_question)
+    # 如果没抓到两个，你可以 fallback 到 general mode
+
+    # 2) 对这两个课程分别 retrieve_context
+    contexts_a = retrieve_context(retrieval_question, forced_course=codes[0], analysis_question=original_question)
+    contexts_b = retrieve_context(retrieval_question, forced_course=codes[1], analysis_question=original_question)
+
+    # 3) memory 用来做 personalization
+    mem_items = retrieve_memories(original_question, top_k=5)
+    memory_block = format_memories_block(mem_items)
+
+    # 4) prompt：先比较，再结合用户方向给微调建议
+
+
+def chat_with_memory_only(original_question: str) -> str:
+    """
+    纯对话模式：不查 syllabus，只用记忆 + 通用知识聊天。
+    用于：自我介绍、职业规划、生活问题、随便聊天等。
+    """
+    mem_items = retrieve_memories(original_question, top_k=8)
+    memory_block = format_memories_block(mem_items)
+
+    system_prompt = (
+        "You are a helpful assistant in a multi-turn chat.\n"
+        "You see the user's latest message and some internal memory snippets about them.\n"
+        "Your job is to reply like in a normal conversation, not to write a third-person profile.\n\n"
+        "Rules:\n"
+        "1) Always address the user in second person (\"you\"), never as \"the student\" or \"the user\".\n"
+        "2) Write a natural chat-style answer in 1–3 sentences.\n"
+        "3) If the user is sharing background or future plans, briefly acknowledge it and, if helpful, "
+        "   restate their background/goals in second person.\n"
+        "4) You may use the memory snippets to stay consistent, but DO NOT copy them verbatim; rephrase in your own words.\n"
+        "5) In this mode you MUST NOT recommend or mention any specific NYU course codes "
+        "   (e.g. 'ECE-GY 6143', 'ECE-GY 6483', 'CS-GY 6923'), "
+        "   unless the user explicitly asks which course to take or mentions a course code in their message.\n"
+        "6) Do not mention the existence of memory snippets explicitly."
+    )
+
+    user_prompt = (
+        "===== Memory Snippets (for your reference only) =====\n"
+        f"{memory_block}\n\n"
+        "===== Latest User Message =====\n"
+        f"{original_question}\n\n"
+        "Now reply to the user in English, following the rules above."
+    )
+
+    payload = {
+        "model": QWEN_MODEL_NAME,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user",  "content": user_prompt},
+        ],
+        "max_tokens": 512,
+        "temperature": 0.3,
+        "top_p": 0.8,
+    }
+
+    resp = requests.post(QWEN_API_URL, json=payload, timeout=120)
+    resp.raise_for_status()
+    data = resp.json()
+    return data["choices"][0]["message"]["content"]
+
 
 def _looks_like_comparison(question: str, course_codes: List[str]) -> bool:
     """简单判断是不是在比较多门课，如果是就允许多个 syllabus 一起出现。"""
@@ -668,38 +1255,60 @@ def classify_course_for_selection(question: str) -> Optional[str]:
 def answer_course_selection_question(original_question: str,
                                      retrieval_question: Optional[str] = None) -> str:
     """
-    选课类问题：先用 classify_course_for_selection 选课，再用 RAG+Qwen 解释。
+    选课类问题：用课程列表 + 记忆 + syllabus RAG 做个性化推荐。
     """
+
+    # 1) 先从记忆里捞出你之前说过的背景 / 目标（关键：个性化靠这个）
+    mem_items = retrieve_memories(original_question, top_k=5)
+    memory_block = format_memories_block(mem_items)
+
+    # 2) 用 Qwen 在 COURSE_PROFILES 里选出一门“最匹配”的课
     course = classify_course_for_selection(original_question)
     if course is None:
-        # 分类失败，退回普通 RAG（这里就相当于：第一次精炼失败，直接用原问题做检索）
+        # 分类失败，退回普通 RAG（普通 path 里已经会用 memory_block）
         return call_qwen_with_rag(original_question, retrieval_question)
 
-    # 第二步：强制锁定这门课做检索
+    # 3) 针对这门课做 syllabus 检索（仍然走你原来的 RAG）
     rq = retrieval_question or original_question
     contexts = retrieve_context(
         question=rq,
         forced_course=course,
-        analysis_question=original_question   # 需要你给 retrieve_context 加这个参数
+        analysis_question=original_question
     )
     context_block = "\n\n".join(contexts) if contexts else "(No relevant syllabus snippets were retrieved.)"
 
+    # 4) 把“记忆 + syllabus”一起喂给 Qwen，让它按你的目标给推荐理由
     system_prompt = (
         "You are an academic advisor and teaching assistant at NYU Tandon.\n"
-        f"You are currently recommending and explaining one specific course: {course}.\n"
-        "Use only the provided syllabus snippets when describing what this course covers.\n"
-        "Keep answers short (1–3 sentences)."
+        "You know both the course syllabi and the student's long-term background and goals.\n"
+        "You must use the memory snippets to personalize course recommendations.\n"
+        "Keep answers short (1–3 sentences).\n"
+        "Always answer the student's exact question first (e.g., compare the specific courses they mention), "
+        "and only then briefly explain how the recommendation aligns with their long-term goals."
     )
 
-    user_prompt = (
-        f"The student asked:\n{original_question}\n\n"
-        f"You (as advisor) have decided that the best matching course is: {course}.\n\n"
-        "Here are syllabus snippets (may include multiple courses, but you must only rely on the parts clearly related to this course):\n"
-        f"{context_block}\n\n"
-        "Based on these snippets, briefly explain why this course matches the student's request "
-        "and what low-level / architecture / embedded topics it covers. "
-        "If the syllabus does not show relevant low-level content, say so honestly."
-    )
+
+    user_prompt = f"""
+===== Student Memory Snippets =====
+{memory_block}
+
+===== Syllabus Snippets for the chosen course ({course}) =====
+{context_block}
+
+The student asked:
+{original_question}
+
+You (as advisor) have decided that the best matching course from the list is: {course}.
+
+Using BOTH:
+1) the student's background and goals from the memory snippets, and
+2) the topics / workload shown in the syllabus snippets,
+
+give a brief English answer (1–3 sentences) that:
+- directly states whether this course is a good fit for the student, and
+- if relevant, mentions why this course is better aligned with their goals than the other options mentioned in the question.
+If the syllabus does not show any low-level / architecture / embedded content, state that clearly.
+"""
 
     payload = {
         "model": QWEN_MODEL_NAME,
@@ -717,52 +1326,47 @@ def answer_course_selection_question(original_question: str,
     data = resp.json()
     return data["choices"][0]["message"]["content"]
 
+
 def call_qwen_with_rag(original_question: str,
                        retrieval_question: Optional[str] = None) -> str:
     """
-    第二次调用 Qwen：先用 retrieval_question 做 RAG 检索，再用 syllabus 片段回答 original_question。
-    retrieval_question 一般是第一次千问输出的英文关键词；为空时退回 original_question。
+    第二次调用 Qwen：RAG over syllabus + conversation memory。
     """
     rq = retrieval_question or original_question
 
-    # 检索用的是精炼后的 rq
+    # 1) syllabus context（你原来的逻辑）
     contexts = retrieve_context(
-        question=rq,                 # 用 refined 做 embedding
-        analysis_question=original_question  # 用原始问题做路由/关键词
+        question=rq,
+        analysis_question=original_question
     )
-    context_block = "\n\n".join(contexts) if contexts else "(No relevant syllabus snippets were retrieved.)"
+    syllabus_block = "\n\n".join(contexts) if contexts else "(No relevant syllabus snippets were retrieved.)"
+
+    # 2) memory context（新增）
+    mem_items = retrieve_memories(original_question, top_k=5)
+    memory_block = format_memories_block(mem_items)
 
     system_prompt = (
-        "You are a teaching assistant familiar with NYU Tandon courses. "
-        "You answer students' questions strictly based on the provided syllabus snippets.\n\n"
-        "Global rules:\n"
-        "1) Always answer in **English**, even if the question is in another language.\n"
-        "2) Keep answers **short and focused**: usually 1–3 sentences, and at most 120 words.\n"
-        "3) Only talk about information types that are **explicitly requested in the question**.\n"
-        "   - If the question does NOT mention grading, exam dates, workload, project, textbook, or GitHub, "
-        "     do NOT bring them up.\n"
-        "4) Do not compare this course with other courses unless the user explicitly asks for a comparison.\n"
-        "5) Never invent numbers, percentages, policies, or rules; if something is not specified in the snippets, "
-        "   clearly say that it is not specified.\n"
-        "If the question is asking about a single course (not comparing multiple courses), then even if the retrieved "
-        "context contains snippets from several syllabi, you must answer strictly based on the syllabus of that single "
-        "course only. Do not mention instructors, grading policies, exam information, or any details from other courses."
+        "You are a teaching assistant familiar with NYU Tandon courses, and you also remember "
+        "long-term facts and preferences about the student based on past conversations.\n\n"
+        "You must obey these rules:\n"
+        "1) For questions about courses/syllabi, rely primarily on the provided syllabus snippets.\n"
+        "2) Use the memory snippets only for personalizing the answer (e.g., relating to the student's goals), "
+        "   not for guessing missing syllabus details.\n"
+        "3) Never fabricate syllabus details (grading breakdown, exam dates, policies) if they are not explicitly stated.\n"
+        "4) Always answer the student's direct question first, then optionally add one short personalized remark.\n"
+        "5) Keep answers short and focused: 1–3 sentences, at most 120 words.\n"
     )
 
     user_prompt = (
-        "Here are raw text snippets from one or more NYU course syllabi:\n\n"
-        f"{context_block}\n\n"
-        "The student originally asked:\n"
+        "===== Student Memory Snippets =====\n"
+        f"{memory_block}\n\n"
+        "===== Syllabus Snippets =====\n"
+        f"{syllabus_block}\n\n"
+        "The student asked:\n"
         f"{original_question}\n\n"
-        "Internally, the system used the following refined search query to retrieve context:\n"
-        f"{rq}\n\n"
-        "Based **only** on the information in the syllabus snippets, answer the student's original question in English.\n\n"
-        "Answering style:\n"
-        "1) Start with a direct answer that addresses the question.\n"
-        "2) Optionally add 1–2 short supporting points **only if they are directly relevant** to the question.\n"
-        "3) Do NOT include extra details such as exam dates, grading breakdowns, URLs, or project info "
-        "   unless the question explicitly asks about them.\n"
-        "4) If the syllabus does not specify the requested detail, say that it is not specified in the available snippets.\n"
+        "Based only on the syllabus snippets and optionally using relevant memory snippets for personalization, "
+        "answer the student's question in English.\n"
+        "If a requested syllabus detail is not specified, say clearly that it is not specified.\n"
     )
 
     payload = {
@@ -786,10 +1390,16 @@ def call_qwen_with_rag(original_question: str,
 # ====== Flask Web 部分 ======
 app = Flask(__name__)
 
-
 @app.route("/", methods=["GET"])
 def index():
+    # 如果带了 ?reset_mem=1，就清空记忆
+    reset_memories()
     return render_template("index.html")
+
+@app.route("/reset_memory", methods=["POST"])
+def reset_memory_route():
+    reset_memories()
+    return jsonify({"status": "ok"})
 
 @app.route("/ask", methods=["POST"])
 def ask():
@@ -802,20 +1412,46 @@ def ask():
         return jsonify({"error": "Question must not be empty."}), 400
 
     try:
-            refined = refine_question_with_qwen(question)
+        refined = None
 
-            if is_course_selection_question(question):
-                # 专门的选课/比较 path
-                answer = answer_course_selection_question(
-                    original_question=question,
-                    retrieval_question=refined
-                )
-            else:
-                # 普通 syllabus 细节问题
-                answer = call_qwen_with_rag(
-                    original_question=question,
-                    retrieval_question=refined
-                )
+        # 1) 如果是在比较课程（“还是 / 对比 / A or B / vs”），走专门的比较路径
+        if is_course_comparison_question(question):
+            refined = refine_question_with_qwen(question)
+            answer = answer_course_comparison_question(
+                original_question=question,
+                retrieval_question=refined
+            )
+
+        # 2) 普通选课咨询：从 COURSE_PROFILES 里挑一门最适合的
+        elif is_course_selection_question(question):
+            refined = refine_question_with_qwen(question)
+            answer = answer_course_selection_question(
+                original_question=question,
+                retrieval_question=refined
+            )
+
+        # 3) 课程细节 / syllabus 问题：查 syllabus + memory
+        elif is_syllabus_question(question):
+            refined = refine_question_with_qwen(question)
+            answer = call_qwen_with_rag(
+                original_question=question,
+                retrieval_question=refined
+            )
+
+        # 4) 其它任何聊天 / 规划 / 生活问题：纯记忆聊天
+        else:
+            answer = chat_with_memory_only(question)
+            # 防止模型乱提课号
+            answer = re.sub(
+                r"\b[A-Z]{2,4}-?GY\s*\d{3,4}\b",
+                "this course",
+                answer
+            )
+
+        # ===== 每一轮都写入记忆 =====
+        turn_id = next(TURN_COUNTER)
+        add_memory_from_turn(question, answer, source_turn=turn_id)
+
     except Exception as e:
         return jsonify({"error": f"Failed to call Qwen backend: {e}"}), 500
 
