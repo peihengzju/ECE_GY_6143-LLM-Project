@@ -1,6 +1,6 @@
 # NYU Course Advisor (Flask + Qwen + RAG)
 
-A fast syllabus QA and course advisor. It rewrites queries with Qwen, ranks syllabus chunks with Faiss + E5 embeddings, remembers prior turns, and can auto-build a weekly schedule.
+A fast, intelligent syllabus QA and course advising assistant. It leverages **RAG (Retrieval-Augmented Generation)** to answer questions from syllabus PDFs, maintains conversational context, and can automatically build and visualize weekly schedules.
 
 ## Highlights
 - RAG over syllabus PDFs (`vector_store/index.faiss` + `vector_store/texts.json`).
@@ -72,6 +72,10 @@ pytest test.py -q
 ```bash
 QWEN_TEST_ENABLED=1 pytest test_integration_qwen.py -q -m integration
 ```
+
+## 📂 Project Layout
+Working demo:
+
 
 ## Common Issues
 - Missing vector store: rerun `python ingest_syllabi.py` and ensure `vector_store/index.faiss` + `texts.json` exist.
