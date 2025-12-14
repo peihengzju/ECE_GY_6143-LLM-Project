@@ -1,22 +1,146 @@
 {
   "courses": [
     {
+      "id": "ece-gy_5253",
+      "code": "ECE-GY 5253",
+      "name": "Applied Matrix Theory",
+      "description": "This course covers elementary facts about matrices and determinants, theory of linear equations, eigenvalues and eigenvectors, canonical forms and transformations, the Jordan canonical form, norms, location of eigenvalues, singular value decomposition (SVD), matrix analysis of differential and difference equations, application to stability analysis of linear systems, nonnegative matrices, and computational issues.",
+      "schedule": "",
+      "location": "370 Jay St, Room 1001",
+      "instructor": "Prof. Z. P. Jiang",
+      "keywords": [
+        "matrix theory",
+        "linear equations",
+        "eigenvalues",
+        "canonical forms",
+        "singular value decomposition",
+        "stability analysis",
+        "nonnegative matrices"
+      ],
+      "anti_keywords": [],
+      "recommendation_blurb": "A comprehensive course on matrix theory with applications to engineering and scientific problems, featuring both theoretical foundations and practical computational aspects."
+    },
+    {
+      "id": "ece5613",
+      "code": "Ece5613",
+      "name": "Introduction to Electric Power Systems",
+      "description": "This course covers power in single-phase AC circuits, three-phase circuits, complex power, transmission lines parameters, transformers, per-unit normalization, symmetrical components, and load-flow programming.",
+      "schedule": "",
+      "location": "LC 255",
+      "instructor": "Francisco de Leon",
+      "keywords": [
+        "electric power systems",
+        "transmission lines",
+        "symmetrical components",
+        "load-flow programming",
+        "three-phase circuits"
+      ],
+      "anti_keywords": [],
+      "recommendation_blurb": "A comprehensive course for understanding electric power systems analysis and design."
+    },
+    {
+      "id": "ece-gy_6113",
+      "code": "ECE-GY 6113",
+      "name": "Digital Signal Processing I",
+      "description": "Discrete and continuous-time linear systems. Z-transforms. Fourier transforms. Sampling. Discrete Fourier transform (DFT). Fast Fourier transform (FFT). Digital filtering. Design of FIR and IIR filters. Windowing. Least squares in signal processing. Minimum-phase and all-pass systems. MATLAB programming exercises.",
+      "schedule": "Tue 09:30-10:45, Thu 09:30-10:45",
+      "location": "Zoom (remote lectures)",
+      "instructor": "Prof. Thomas Marzetta",
+      "keywords": [
+        "digital signal processing",
+        "MATLAB",
+        "Fourier transforms",
+        "filter design",
+        "convolution",
+        "sampling",
+        "FFT",
+        "linear systems"
+      ],
+      "anti_keywords": [],
+      "recommendation_blurb": "A comprehensive graduate-level course covering fundamental DSP concepts with practical MATLAB exercises, ideal for students with prior signals and systems background."
+    },
+    {
+      "id": "ece-gy_6143",
       "code": "ECE-GY 6143",
       "name": "Introduction to Machine Learning",
-      "focus": "machine learning, statistics, supervised and unsupervised learning",
-      "keywords": ["6143", "machine learning", "机器学习", "ml"]
+      "description": "This course is an introduction to the field of machine learning, covering fundamental techniques for classification, regression, dimensionality reduction, clustering, and model selection. A broad range of algorithms will be covered, such as linear and logistic regression, neural networks, deep learning, support vector machines, tree-based methods, expectation maximization, and principal components analysis. The course will include hands-on exercises with real data from different application areas (e.g. text, audio, images). Students will learn to train and validate machine learning models and analyze their performance. May not take if student has already completed ECE-UY 4563.",
+      "schedule": "Tuesdays 11:00-13:30",
+      "location": "370 Jay St, Room 202",
+      "instructor": "Prof. Sundeep Rangan",
+      "keywords": [
+        "machine learning",
+        "classification",
+        "regression",
+        "neural networks",
+        "deep learning",
+        "python",
+        "hands-on exercises",
+        "model selection"
+      ],
+      "anti_keywords": [],
+      "recommendation_blurb": "An excellent foundational course for students with no prior machine learning experience, offering hands-on practice with real-world data and comprehensive coverage of essential algorithms."
     },
     {
-      "code": "ECE-GY 6913",
-      "name": "Computer System Architecture",
-      "focus": "RISC-V instruction set, pipelined processor, cache, memory hierarchy, low-level architecture",
-      "keywords": ["6913", "architecture", "RISC-V", "computer system"]
+      "id": "el6253",
+      "code": "EL6253",
+      "name": "Linear Systems",
+      "description": "This course covers basic concepts, classification of systems, notion of state, realization theory, canonical forms, time-domain analysis, frequency domain analysis, controllability, observability, Kalman decomposition, stability, observer design, and sampled data systems.",
+      "schedule": "",
+      "location": "LC266E",
+      "instructor": "Prof. Farshad Khorrami",
+      "keywords": [
+        "linear systems",
+        "canonical forms",
+        "controllability",
+        "observability",
+        "Kalman decomposition",
+        "stability",
+        "observer design"
+      ],
+      "anti_keywords": [],
+      "recommendation_blurb": "A comprehensive course on linear systems theory with strong emphasis on controllability, observability, and stability analysis."
     },
     {
+      "id": "ece-gy_6483",
       "code": "ECE-GY 6483",
       "name": "Real Time Embedded Systems",
-      "focus": "ARM Cortex-M, STM32, real-time OS, peripherals, embedded C",
-      "keywords": ["6483", "embedded", "STM32", "real-time", "嵌入式"]
+      "description": "This course provides an overview of the unique concepts and techniques needed to design and implement computer systems having realtime response requirements in an embedded environment. It contrasts the concepts and techniques of real time and embedded systems with those of more traditional computer systems.",
+      "schedule": "Tue 17:00-19:30",
+      "location": "370 Jay, Room 202",
+      "instructor": "Matthew Campisi",
+      "keywords": [
+        "embedded systems",
+        "real-time systems",
+        "ARM Cortex",
+        "embedded C",
+        "RTOS",
+        "IoT",
+        "sensors",
+        "hardware"
+      ],
+      "anti_keywords": [],
+      "recommendation_blurb": "A comprehensive hands-on course for students interested in designing embedded systems with real-time requirements and IoT applications."
+    },
+    {
+      "id": "ece_6913",
+      "code": "ECE 6913",
+      "name": "Computing Systems Architecture",
+      "description": "This course provides a solid foundation for graduate students to understand modern computing systems architecture and to apply these insights and principles to design computer systems given the emerging age of domain specific architectures and an unprecedented growth in markets for trillions of pervasive, energy-efficient and ultra-low-cost processor chips.",
+      "schedule": "Thu 14:00-16:30",
+      "location": "5 MetroTech, Pfizer Auditorium",
+      "instructor": "Azeez Bhavnagarwala",
+      "keywords": [
+        "computer architecture",
+        "RISC-V",
+        "pipelining",
+        "memory hierarchy",
+        "hardware accelerators",
+        "parallel processing",
+        "GPU",
+        "TPU"
+      ],
+      "anti_keywords": [],
+      "recommendation_blurb": "A comprehensive graduate-level course that covers modern computing systems architecture with a focus on RISC-V, pipelining, memory hierarchy, and emerging AI hardware accelerators."
     }
   ]
 }

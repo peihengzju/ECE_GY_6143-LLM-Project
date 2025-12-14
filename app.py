@@ -4,21 +4,24 @@ from itertools import count
 
 from flask import Flask, request, jsonify, render_template
 
+
+
+from schedule_module import try_generate_schedule_from_dialog
 # ===== 你自己封装的模块 =====
 from memory_module import reset_memories, add_memory_from_turn
 from rag_module import (
-    refine_question_with_qwen,
-    is_course_selection_question,
-    is_syllabus_question,
-    is_course_comparison_question,
+    
     retrieve_context,
     LAST_RETRIEVAL_DEBUG,
+    analyze_request_with_qwen,
+
 )
 from advisor_module import (
     chat_with_memory_only,
     call_qwen_with_rag,
     answer_course_selection_question,
     answer_course_comparison_question,
+    
 )
 
 # 如果你把 Qwen HTTP 调用封到 qwen_client 里，这里不用再管 URL/模型名
@@ -54,7 +57,9 @@ def reset_memory_route():
 
 @app.route("/ask", methods=["POST"])
 def ask():
-    # 1) 取问题
+    # ---------------------------------------------------------
+    # 1) 获取用户输入
+    # ---------------------------------------------------------
     if request.is_json:
         question = request.json.get("question", "")
     else:
@@ -64,68 +69,131 @@ def ask():
         return jsonify({"error": "Question must not be empty."}), 400
 
     try:
-        refined = None
+        # =========================================================
+        # [REMOVED] 删除了原先在这里的 "优先尝试课表生成" 代码块
+        # 现在完全依赖 LLM 的意图识别来触发
+        # =========================================================
 
-        # 2) 意图路由：比较 / 选课 / syllabus / 普通聊天
-        if is_course_comparison_question(question):
-            # A vs B / A 还是 B：课程对比，双 syllabus + memory
-            refined = refine_question_with_qwen(question)
+        answer = ""
+        
+        # ---------------------------------------------------------
+        # 2) 智能分析 (The Analyzer)
+        #    现在 analyze_request_with_qwen 会返回 "SCHEDULE" 意图
+        # ---------------------------------------------------------
+        question_intent, refined_query = analyze_request_with_qwen(question)
+        
+        print(f"[DEBUG] User Question: {question}")
+        print(f"[DEBUG] Intent: {question_intent} | Query: {refined_query}")
+
+        # ---------------------------------------------------------
+        # 3) 意图路由 (Route Logic)
+        # ---------------------------------------------------------
+        
+        # === [NEW] 新增：处理排课意图 ===
+        if question_intent == "SCHEDULE":
+            # 调用排课状态机/逻辑
+            try:
+                handled, payload = try_generate_schedule_from_dialog(
+                    question=question,
+                    answer="", 
+                    request_obj=request
+                )
+            except Exception as e:
+                print(f"[Schedule Error] {e}")
+                handled, payload = False, None
+
+            if handled:
+                # A) 如果生成了 HTML 课表 -> 直接返回结果
+                if payload["type"] == "html":
+                    note = "Here is your updated schedule:"
+                    if request.is_json:
+                        return jsonify({
+                            "answer": note,
+                            "intent": question_intent,
+                            "schedule_html": payload["html"],
+                            "conflicts": payload.get("conflicts", [])
+                        })
+                    else:
+                        return payload["html"]
+
+                # B) 如果需要确认 (Confirmation) -> 直接返回询问
+                if payload["type"] == "ask_for_confirmation":
+                    return jsonify(payload)
+            
+            else:
+                # 识别到了排课意图，但没提取到课程号（例如用户只说了 "Add course"）
+                answer = "I understood you want to manage your schedule, but I need the course code. Please specify it (e.g., 'Add 6143')."
+
+        # === 比较模式 ===
+        elif question_intent == "COMPARISON":
             answer = answer_course_comparison_question(
                 original_question=question,
-                retrieval_question=refined,
+                retrieval_question=refined_query
             )
-
-        elif is_course_selection_question(question):
-            # 普通选课咨询：在 COURSE_PROFILES 里挑一门 + syllabus + memory
-            refined = refine_question_with_qwen(question)
+        
+        # === 选课模式 ===
+        elif question_intent == "SELECTION":
             answer = answer_course_selection_question(
                 original_question=question,
-                retrieval_question=refined,
+                retrieval_question=refined_query
             )
 
-        elif is_syllabus_question(question):
-            # 课程细节 / syllabus 问题：syllabus RAG + memory
-            refined = refine_question_with_qwen(question)
+        # === 大纲详情 ===
+        elif question_intent == "SYLLABUS":
             answer = call_qwen_with_rag(
                 original_question=question,
-                retrieval_question=refined,
+                retrieval_question=refined_query
             )
 
-        else:
-            # 其它任何聊天 / 规划 / 生活问题：纯记忆聊天，不查 syllabus
+        # === 闲聊模式 ===
+        else: 
             answer = chat_with_memory_only(question)
-            # 保守点，防止模型乱提课号
+            # 防御性替换
             answer = re.sub(
                 r"\b[A-Z]{2,4}-?GY\s*\d{3,4}\b",
                 "this course",
                 answer,
             )
 
-        # 3) 每一轮都写入记忆（无论是 syllabus 还是纯聊天）
-        turn_id = next(TURN_COUNTER)
+        # ---------------------------------------------------------
+        # 4) 写入长短期记忆
+        # ---------------------------------------------------------
+        turn_id = next(TURN_COUNTER) 
         add_memory_from_turn(question, answer, source_turn=turn_id)
 
     except Exception as e:
-        return jsonify({"error": f"Failed to process request: {e}"}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"Failed to process request: {str(e)}"}), 500
 
-    # 4) 返回格式：JSON 模式 / 表单模式
+    # ---------------------------------------------------------
+    # 5) 返回响应 (AI Chat Response)
+    # ---------------------------------------------------------
     if request.is_json:
-        return jsonify({"answer": answer})
+        return jsonify({
+            "answer": answer, 
+            "intent": question_intent,
+            "refined_query": refined_query
+        })
     else:
+        # HTML 简易返回
         return f"""
         <html>
         <head><meta charset="utf-8"><title>Answer</title></head>
         <body>
+          <h3>Intent: <span style="color:blue">{question_intent}</span></h3>
+          <p><b>Query:</b> {refined_query}</p>
           <p><b>Question:</b> {question}</p>
           <hr>
-          <pre>{answer}</pre>
+          <pre style="white-space: pre-wrap;">{answer}</pre>
+          <br>
           <a href="/">Back to main page</a>
         </body>
         </html>
         """
 
 
-# ============== RAG debug 接口 ==============
+# ============== RAG debug 接口 (保持不变) ==============
 
 @app.route("/debug_retrieval", methods=["POST"])
 def debug_retrieval():
@@ -140,7 +208,7 @@ def debug_retrieval():
     if not question.strip():
         return jsonify({"error": "Question must not be empty."}), 400
 
-    refined = refine_question_with_qwen(question)
+    intent, refined = analyze_request_with_qwen(question)
     contexts = retrieve_context(
         question=refined,
         analysis_question=question,

@@ -1,513 +1,724 @@
-    <!doctype html>
-    <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>NYU Course Selection Assistant</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>NYU Course Selection Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Merriweather:wght@700&display=swap" rel="stylesheet">
 
-        .side-logo {
-            position: fixed;
-            top: 50%;
-            transform: translateY(-50%);
-            width: var(--side-logo-width); 
-            height: auto;
+    <style>
+        :root {
+            --nyu-violet: #57068c; 
+            --nyu-light-bg: #f7f7f8;
+            --border-color: #e6e6e6;
+            --user-bubble: #57068c;
+            --bot-bubble: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-float: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 50% 0%, #f3efff 0%, #f7f7f8 60%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: var(--text-main);
+        }
+
+        /* ================= Header ================= */
+        header.nyu-header {
+            background-color: var(--nyu-violet);
+            height: 90px; 
+            display: flex;
+            align-items: center;
+            justify-content: center; 
+            padding: 0 20px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(87, 6, 140, 0.2);
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .nyu-logo-img {
+            height: 100%; 
+            width: auto;
             object-fit: contain;
-            z-index: 1;
-            opacity: 1;                  
+            padding: 6px 0; 
         }
 
-        .side-logo-left {
-            left: calc((50% - 480px - var(--side-logo-width)) / 2);
+        /* ================= Main Chat Area ================= */
+        main.chat-container {
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden; 
         }
 
-        .side-logo-right {
-            right: calc((50% - 480px - var(--side-logo-width)) / 2);
+        #qaList {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            scroll-behavior: smooth;
+            padding-bottom: 130px;
+        }
+        
+        #qaList::-webkit-scrollbar { width: 6px; }
+        #qaList::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.1); border-radius: 4px; }
+
+        /* ================= Welcome Card ================= */
+        .welcome-overlay {
+            position: absolute;
+            top: 48%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 640px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-float);
+            text-align: center;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 10;
         }
 
-        @media (max-width: 900px) {
-            .side-logo {
-                display: none;
-            }
+        .welcome-title {
+            font-family: 'Merriweather', serif;
+            color: var(--nyu-violet);
+            font-size: 24px;
+            margin-bottom: 16px;
         }
-            :root {
-                --side-logo-width: clamp(200px, 25vw, 400px);
-                --bg: #57068c;
-                --panel: #ffffff;
-                --border: #e0e0e5;
-                --accent: #57068c;
-                --accent-soft: #f5e8ff;
-                --text-main: #f9fafb;   /* default text on purple background */
-                --text-muted: #e5d2ff;  /* muted text on purple background */
-                --error: #b91c1c;
-            }
-            * { box-sizing: border-box; }
-            body {
-                margin: 0;
-                font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-                background: var(--bg);
-                color: var(--text-main);
-            }
-            .page {
-                max-width: 960px;
-                margin: 0 auto;
-                padding: 24px 16px 32px;
-            }
-            header.site-header {
-                border-bottom: 1px solid rgba(255,255,255,0.25);
-                padding-bottom: 16px;
-                margin-bottom: 24px;
-            }
-            .site-title-row {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-            }
-            .site-logo {
-                width: 70px;
-                height: 56px;
-                border-radius: 0;
-                object-fit: contain;
-                background: transparent;
-                padding: 0;
-            }
-            .site-title-text {
-                display: flex;
-                flex-direction: column;
-            }
-            .site-title {
-                font-size: 18px;
-                font-weight: 600;
-                color: #ffffff;
-            }
-            .site-subtitle {
-                font-size: 13px;
-                color: var(--text-muted);
-            }
 
-            main {
-                display: grid;
-                grid-template-columns: minmax(0, 3fr);
-                gap: 24px;
-            }
+        .welcome-desc {
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
 
-            /* panels on white background use dark text */
-            .intro-panel,
-            .qa-list,
-            .input-panel {
-                background: var(--panel);
-                border-radius: 12px;
-                border: 1px solid var(--border);
-                color: #111827;
-            }
+        .example-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
 
-            .intro-panel {
-                margin-bottom: 16px;
-                padding: 16px 18px;
-            }
-            .intro-title {
-                font-size: 15px;
-                font-weight: 600;
-                margin-bottom: 4px;
-            }
-            .intro-text {
-                font-size: 13px;
-                color: #4b5563;
-                margin-bottom: 10px;
-            }
-            .example-questions {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 8px;
-                margin-top: 4px;
-            }
-            .example-pill {
-                font-size: 12px;
-                padding: 4px 8px;
-                border-radius: 999px;
-                border: 1px solid #d1d5db;
-                background: #f9fafb;
-                cursor: pointer;
-            }
-            .example-pill:hover {
-                background: #f3f4f6;
-            }
+        .example-pill {
+            background: white;
+            border: 1px solid #e0e0e0;
+            color: var(--text-main);
+            padding: 12px 20px;
+            border-radius: 99px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+            font-weight: 500;
+        }
 
-            .qa-section-title {
-                font-size: 14px;
-                font-weight: 600;
-                margin: 16px 0 8px;
-                color: #f9fafb;  /* title on purple background */
-            }
+        .example-pill:hover {
+            border-color: var(--nyu-violet);
+            color: var(--nyu-violet);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(87,6,140,0.15);
+        }
 
-            .qa-list {
-                padding: 12px 16px;
-                max-height: 60vh;
-                overflow-y: auto;
-            }
-            .qa-empty-hint {
-                font-size: 13px;
-                color: #4b5563;
-                text-align: center;
-                margin: 24px 0 12px;
-            }
-            .qa-item {
-                padding: 10px 0;
-                border-bottom: 1px solid #e5e7eb;
-            }
-            .qa-item:last-child {
-                border-bottom: none;
-            }
-            .qa-label {
-                font-size: 11px;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.04em;
-                margin-bottom: 2px;
-            }
-            .qa-label-question {
-                color: #003F88;
-            }
-            .qa-label-answer {
-                color: #B01F24;
-            }
-            .qa-question {
-                font-size: 14px;
-                margin-bottom: 4px;
-            }
-            .qa-answer {
-                font-size: 14px;
-                background: #f9fafb;
-                border-radius: 8px;
-                padding: 8px 10px;
-                white-space: pre-wrap;
-                word-wrap: break-word;
-            }
+        /* ================= Messages ================= */
+        .qa-item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 24px;
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-            .qa-meta {
-                font-size: 11px;
-                color: #6b7280;
-                margin-top: 4px;
-            }
+        .qa-question {
+            align-self: flex-end;
+            background-color: var(--user-bubble);
+            color: white;
+            padding: 14px 20px;
+            border-radius: 20px 20px 4px 20px;
+            max-width: 80%;
+            font-size: 15px;
+            line-height: 1.5;
+            box-shadow: 0 4px 10px rgba(87,6,140,0.25);
+        }
 
-            .input-panel {
-                margin-top: 24px;
-                padding: 14px 16px 12px;
-            }
-            .input-label {
-                font-size: 13px;
-                font-weight: 500;
-                margin-bottom: 6px;
-            }
-            .input-hint {
-                font-size: 12px;
-                color: #4b5563;
-                margin-bottom: 8px;
-            }
-            .input-row {
-                display: flex;
-                gap: 10px;
-                align-items: flex-start;
-            }
-            .input-wrap {
-                flex: 1;
-            }
-            textarea#question {
-                width: 100%;
-                resize: none;
-                border-radius: 8px;
-                border: 1px solid var(--border);
-                padding: 8px 10px;
-                font-size: 14px;
-                line-height: 1.4;
-                font-family: inherit;
-                min-height: 60px;
-                max-height: 120px;
-                outline: none;
-                background: #ffffff;
-                color: #111827;
-            }
-            textarea#question::placeholder {
-                color: #9ca3af;
-            }
-            textarea#question:focus {
-                border-color: var(--accent);
-                box-shadow: 0 0 0 1px rgba(87,6,140,0.35);
-            }
-            button#sendBtn {
-                border: none;
-                border-radius: 999px;
-                padding: 10px 16px;
-                font-size: 14px;
-                font-weight: 500;
-                cursor: pointer;
-                background: var(--accent);
-                color: #ffffff;
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-                flex-shrink: 0;
-            }
-            button#sendBtn:disabled {
-                opacity: 0.5;
-                cursor: default;
-            }
-            .send-icon {
-                width: 14px;
-                height: 14px;
-                border-radius: 999px;
-                border: 2px solid white;
-                border-left-color: transparent;
-                border-bottom-color: transparent;
-                transform: rotate(45deg);
-            }
+        .qa-answer {
+            align-self: flex-start;
+            background-color: var(--bot-bubble);
+            color: var(--text-main);
+            padding: 18px 24px;
+            border-radius: 20px 20px 20px 4px;
+            max-width: 88%;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-top: 8px;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: var(--shadow-sm);
+            white-space: pre-wrap;
+        }
 
-            .status-bar {
-                margin-top: 6px;
-                font-size: 11px;
-                color: #4b5563;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .status-error {
-                color: var(--error);
-            }
-            .status-loading-dot::after {
-                content: "…";
-                animation: dots 1.2s steps(3, end) infinite;
-            }
-            @keyframes dots {
-                0%, 20% { content: ""; }
-                40% { content: "."; }
-                60% { content: ".."; }
-                80%, 100% { content: "..."; }
-            }
+        .schedule-block {
+            margin-top: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fafafa;
+        }
+        .schedule-block__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: #f1e8ff;
+            color: var(--nyu-violet);
+            font-weight: 700;
+            font-size: 13px;
+        }
+        .schedule-open-btn {
+            border: none;
+            background: var(--nyu-violet);
+            color: white;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .schedule-open-btn:hover {
+            filter: brightness(0.95);
+        }
+        .schedule-frame {
+            width: 100%;
+            min-height: 680px;
+            border: none;
+            display: block;
+            background: white;
+        }
 
-            footer {
-                margin-top: 18px;
-                font-size: 11px;
-                color: var(--text-muted);
-                text-align: right;
-            }
+        .qa-answer::before {
+            content: "NYU Assistant";
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--nyu-violet);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-            @media (max-width: 640px) {
-                main {
-                    grid-template-columns: minmax(0, 1fr);
-                }
-                .page {
-                    padding: 16px 10px 24px;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <img src="/static/nyu-logo.png" alt="NYU logo" class="side-logo side-logo-left">
-        <div class="page">
-            <header class="site-header">
-                <div class="site-title-row">
-                    <div class="site-title-text">
-                        <div class="site-title">NYU Course Selection Assistant</div>
-                        <div class="site-subtitle">
-                            Ask syllabus-based questions to compare courses and plan your study path.
-                        </div>
-                    </div>
+        /* ================= Footer Input Area ================= */
+        .input-footer {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-color);
+            padding: 20px 24px 12px; 
+            position: relative;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .input-row-container {
+            display: flex;
+            /* [修改 1] 改为 center，让左侧圆圈按钮和右侧输入框绝对居中对齐 */
+            align-items: center; 
+            gap: 12px;
+            width: 100%;
+            max-width: 800px; 
+            justify-content: center;
+        }
+        
+        .input-wrapper {
+            flex: 1;
+            max-width: 680px; 
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 28px;
+            padding: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--nyu-violet);
+            box-shadow: 0 0 0 3px rgba(87,6,140,0.15);
+        }
+
+        textarea#question {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 12px 16px;
+            font-family: inherit;
+            font-size: 15px;
+            resize: none;
+            outline: none;
+            max-height: 140px;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+
+        /* 发送按钮 */
+        button#sendBtn {
+            background: var(--nyu-violet);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(87,6,140,0.3);
+        }
+        button#sendBtn:hover:not(:disabled) {
+            background: #42046b;
+            transform: scale(1.08);
+        }
+        button#sendBtn:disabled {
+            background: #e5e7eb;
+            cursor: default;
+            box-shadow: none;
+        }
+        button#sendBtn svg {
+            width: 22px;
+            height: 22px;
+            fill: white;
+            margin-left: 3px;
+        }
+
+        /* New Chat 按钮 */
+        .new-chat-btn-footer {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease; 
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: relative; /* 为了 tooltip 定位 */
+        }
+        
+        .new-chat-btn-footer:hover {
+            border-color: var(--nyu-violet);
+            color: var(--nyu-violet);
+            background: #fdfbff;
+            transform: scale(1.05); 
+            box-shadow: 0 4px 10px rgba(87,6,140,0.15);
+        }
+
+        .new-chat-btn-footer svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            transition: transform 0.6s ease; 
+        }
+
+        .new-chat-btn-footer:hover svg {
+            transform: rotate(-180deg); 
+        }
+
+        /* [修改 2] 定制的 Tooltip 样式，更美观 */
+        .new-chat-btn-footer[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 110%; /* 稍微离按钮远一点，不遮挡 */
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 8px;
+            background: rgba(50, 50, 50, 0.9); /* 半透明黑背景 */
+            backdrop-filter: blur(4px);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            animation: fadeIn 0.2s forwards; /* 淡入效果 */
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Footer Info */
+        .footer-info {
+            width: 100%;
+            max-width: 800px;
+            margin: 12px auto 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .creators-text {
+            color: var(--text-muted); 
+            font-size: 12px; 
+            font-weight: 500;
+        }
+
+        /* Loading Dots */
+        .loading-dots {
+            display: inline-flex;
+            gap: 5px;
+            align-items: center;
+            height: 20px;
+        }
+        .dot {
+            width: 7px;
+            height: 7px;
+            background-color: var(--nyu-violet);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="nyu-header">
+        <div class="logo-area">
+            <img src="/static/nyu-logo.png" alt="NYU Logo" class="nyu-logo-img">
+        </div>
+    </header>
+
+    <main class="chat-container">
+        
+        <div id="welcomeOverlay" class="welcome-overlay">
+            <div class="welcome-title">How can I help you?</div>
+            <div class="welcome-desc">
+                This assistant uses RAG technology to answer questions based strictly on NYU syllabi. 
+                Ask about grading, exams, or compare courses.
+            </div>
+            <div class="example-grid">
+                <div class="example-pill" data-example="I want to learn machine learning. Which course?">
+                    🤖 Recommend ML Course
                 </div>
-            </header>
-
-            <main>
-                <section style="min-width:0;">
-                    <div class="intro-panel">
-                        <div class="intro-title">What does this tool do?</div>
-                        <div class="intro-text">
-                            This assistant answers questions strictly based on uploaded NYU syllabi.
-                            It can help you understand grading, workload, topics, exam dates, and more.
-                        </div>
-                        <div class="intro-text">
-                            Try one of the example questions:
-                        </div>
-                        <div class="example-questions">
-                            <button class="example-pill" data-example="I want to learn machine learning. Which course should I take?">
-                                I want to learn machine learning…
-                            </button>
-                            <button class="example-pill" data-example="What is the grading breakdown for ECE-GY 6143?">
-                                Grading for ECE-GY 6143
-                            </button>
-                            <button class="example-pill" data-example="When is the final exam for ECE-GY 6143?">
-                                Final exam date
-                            </button>
-                        </div>
-                    </div>
-
-                    <h2 class="qa-section-title">Question &amp; Answer History</h2>
-                    <div id="qaList" class="qa-list">
-                        <div class="qa-empty-hint">
-                            No questions yet. Ask something about a course syllabus to get started.
-                        </div>
-                    </div>
-
-                    <div class="input-panel">
-                        <div class="input-label">Ask a new question</div>
-                        <div class="input-hint">
-                            Please be specific. For example: “What is the final exam weight for ECE-GY 6143?”
-                            Press <strong>Ctrl+Enter</strong> to send.
-                        </div>
-                        <div class="input-row">
-                            <div class="input-wrap">
-                                <textarea id="question" rows="3"
-                                    placeholder="Type your question here… (Enter = new line, Ctrl+Enter = send)"></textarea>
-                            </div>
-                            <button id="sendBtn" disabled>
-                                <span>Send</span>
-                                <span class="send-icon"></span>
-                            </button>
-                        </div>
-                        <div class="status-bar">
-                            <span id="statusText"></span>
-                            <span>Backend: RAG over syllabi + local Qwen model</span>
-                        </div>
-                    </div>
-
-                    <footer>
-                        This tool only answers based on information explicitly written in the syllabi.
-                    </footer>
-                </section>
-            </main>
+                <div class="example-pill" data-example="What is the grading breakdown for ECE-GY 6143?">
+                    📊 ECE-GY 6143 Grading
+                </div>
+                <div class="example-pill" data-example="Compare ECE-GY 6143 and ECE-GY 6913">
+                    ⚖️ Compare 6143 vs 6913
+                </div>
+                <div class="example-pill" data-example="When is the final exam for ECE-GY 9999?">
+                    📅 Final Exam Date
+                </div>
+            </div>
         </div>
 
-        <script>
-            const textarea = document.getElementById("question");
-            const sendBtn = document.getElementById("sendBtn");
-            const qaList = document.getElementById("qaList");
-            const statusText = document.getElementById("statusText");
-            const exampleButtons = document.querySelectorAll(".example-pill");
+        <div id="qaList">
+            </div>
 
-            let isSending = false;
+    </main>
 
-            function setStatus(text, isError = false, isLoading = false) {
-                statusText.textContent = text || "";
-                statusText.className = "";
-                if (isError) statusText.classList.add("status-error");
-                if (isLoading) statusText.classList.add("status-loading-dot");
+    <footer class="input-footer">
+        
+        <div class="input-row-container">
+            <button id="newChatBtn" class="new-chat-btn-footer" title="New Chat">
+                <svg viewBox="0 0 24 24"><path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6a5.87 5.87 0 0 1-2.8-.7l-1.46 1.46A7.93 7.93 0 0 0 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46A7.93 7.93 0 0 0 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"/></svg>
+            </button>
+
+            <div class="input-wrapper">
+                <textarea id="question" rows="1" placeholder="Type your question here..."></textarea>
+                <button id="sendBtn" disabled>
+                    <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                </button>
+            </div>
+        </div>
+        
+        <div class="footer-info">
+            <div class="creators-text">
+                Created by Peiheng Yao, Yaoqi Xia, Hao Zhong, Hanyu Da
+            </div>
+            <div>
+                Powered by Qwen3 • Verify with syllabus
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
+    <script>
+        const textarea = document.getElementById("question");
+        const sendBtn = document.getElementById("sendBtn");
+        const qaList = document.getElementById("qaList");
+        const welcomeOverlay = document.getElementById("welcomeOverlay");
+        const newChatBtn = document.getElementById("newChatBtn");
+        const examplePills = document.querySelectorAll(".example-pill");
+
+        let isSending = false;
+        marked.setOptions({ gfm: true, breaks: true });
+
+        function scrollToBottom() {
+            qaList.scrollTop = qaList.scrollHeight;
+        }
+
+        function hideWelcome() {
+            if (welcomeOverlay && welcomeOverlay.style.display !== 'none') {
+                welcomeOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    welcomeOverlay.style.display = 'none';
+                }, 300);
             }
+        }
 
-            function clearEmptyHint() {
-                const hint = document.querySelector(".qa-empty-hint");
-                if (hint) hint.remove();
+        function showWelcome() {
+            welcomeOverlay.style.display = 'block';
+            setTimeout(() => {
+                welcomeOverlay.style.opacity = '1';
+            }, 10);
+        }
+
+        async function resetChat() {
+            qaList.innerHTML = '';
+            textarea.value = '';
+            textarea.style.height = 'auto';
+            updateSendButtonState();
+            showWelcome();
+
+            try {
+                await fetch("/reset_memory", { method: "POST" });
+                console.log("Memory reset on backend.");
+            } catch (e) {
+                console.error("Failed to reset backend memory", e);
             }
+        }
 
-            function appendQA(question, answer) {
-                clearEmptyHint();
+        function createPendingQA(question) {
+            hideWelcome();
 
-                const item = document.createElement("div");
-                item.className = "qa-item";
+            const item = document.createElement("div");
+            item.className = "qa-item";
 
-                const qLabel = document.createElement("div");
-                qLabel.className = "qa-label qa-label-question";
-                qLabel.textContent = "Question";
+            const qEl = document.createElement("div");
+            qEl.className = "qa-question";
+            qEl.textContent = question;
 
-                const qText = document.createElement("div");
-                qText.className = "qa-question";
-                qText.textContent = question;
+            const aEl = document.createElement("div");
+            aEl.className = "qa-answer";
+            aEl.innerHTML = `
+                <div class="loading-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            `;
 
-                const aLabel = document.createElement("div");
-                aLabel.className = "qa-label qa-label-answer";
-                aLabel.style.marginTop = "6px";
-                aLabel.textContent = "Answer";
+            item.appendChild(qEl);
+            item.appendChild(aEl);
+            qaList.appendChild(item);
+            scrollToBottom();
 
-                const aText = document.createElement("div");
-                aText.className = "qa-answer";
-                aText.textContent = answer;
+            return aEl;
+        }
 
-                item.appendChild(qLabel);
-                item.appendChild(qText);
-                item.appendChild(aLabel);
-                item.appendChild(aText);
+        function updateSendButtonState() {
+            const hasText = textarea.value.trim().length > 0;
+            sendBtn.disabled = !hasText || isSending;
+        }
 
-                qaList.appendChild(item);
-                qaList.scrollTop = qaList.scrollHeight;
-            }
+        async function sendQuestion() {
+            const question = textarea.value.trim();
+            if (!question || isSending) return;
 
-            function updateSendButtonState() {
-                const hasText = textarea.value.trim().length > 0;
-                sendBtn.disabled = !hasText || isSending;
-            }
+            isSending = true;
+            updateSendButtonState();
+            
+            const currentQuestion = question;
+            textarea.value = "";
+            textarea.style.height = "auto";
+            
+            const answerContainer = createPendingQA(currentQuestion);
 
-            async function sendQuestion() {
-                const question = textarea.value.trim();
-                if (!question || isSending) return;
+            try {
+                const resp = await fetch("/ask", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ question: currentQuestion })
+                });
 
-                isSending = true;
-                updateSendButtonState();
-                setStatus("Sending question to the backend", false, true);
-
-                const currentQuestion = question;
-                textarea.value = "";
-                updateSendButtonState();
-
-                try {
-                    const resp = await fetch("/ask", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ question: currentQuestion })
-                    });
-
-                    if (!resp.ok) {
-                        const txt = await resp.text();
-                        appendQA(currentQuestion, "Backend error: " + txt);
-                        setStatus("Backend error", true, false);
+                if (!resp.ok) {
+                    const txt = await resp.text();
+                    answerContainer.textContent = "Error: " + txt;
+                    answerContainer.style.color = "#d32f2f";
+                } else {
+                    const data = await resp.json();
+                    if (data.error) {
+                        answerContainer.textContent = "Error: " + data.error;
+                        answerContainer.style.color = "#d32f2f";
                     } else {
-                        const data = await resp.json();
-                        if (data.error) {
-                            appendQA(currentQuestion, "Error: " + data.error);
-                            setStatus("Request failed", true, false);
-                        } else {
-                            appendQA(currentQuestion, data.answer || "(empty answer)");
-                            setStatus("", false, false);
-                        }
+                        const scheduleHtml = data.schedule_html;
+                        const conflicts = data.conflicts || [];
+                        typeWriter(answerContainer, data.answer || "", () => {
+                            if (scheduleHtml) {
+                                renderScheduleEmbed(answerContainer, scheduleHtml, conflicts);
+                            }
+                        });
                     }
-                } catch (err) {
-                    console.error(err);
-                    appendQA(currentQuestion, "Request failed. Is the backend running?");
-                    setStatus("Request failed", true, false);
-                } finally {
-                    isSending = false;
-                    updateSendButtonState();
+                }
+            } catch (err) {
+                console.error(err);
+                answerContainer.textContent = "Network Error. Check backend.";
+                answerContainer.style.color = "#d32f2f";
+            } finally {
+                isSending = false;
+                updateSendButtonState();
+            }
+        }
+
+        function typeWriter(element, text, onDone) {
+            const safeText = text || "";
+            element.innerHTML = "";
+            let i = 0;
+            const speed = 10;
+
+            if (!safeText.length) {
+                element.innerHTML = "";
+                if (typeof onDone === "function") onDone();
+                return;
+            }
+
+            function type() {
+                if (i < safeText.length) {
+                    element.textContent += safeText.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                    if (i % 10 === 0) scrollToBottom();
+                } else {
+                    // 打字结束后：Markdown -> HTML，并做 XSS 清理
+                    const html = DOMPurify.sanitize(marked.parse(safeText));
+                    element.innerHTML = html;
+                    scrollToBottom();
+                    if (typeof onDone === "function") onDone();
                 }
             }
+            type();
+        }
 
-            sendBtn.addEventListener("click", (e) => {
+        function renderScheduleEmbed(container, scheduleHtml, conflicts) {
+            const block = document.createElement("div");
+            block.className = "schedule-block";
+
+            const header = document.createElement("div");
+            header.className = "schedule-block__header";
+            header.textContent = "Generated Schedule";
+
+            const link = document.createElement("a");
+            const blob = new Blob([scheduleHtml], { type: "text/html" });
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.target = "_blank";
+            link.rel = "noopener";
+            link.className = "schedule-open-btn";
+            link.textContent = "Open in new tab";
+            link.addEventListener("click", () => {
+                setTimeout(() => URL.revokeObjectURL(url), 30000);
+            });
+
+            header.appendChild(link);
+
+            const frame = document.createElement("iframe");
+            frame.className = "schedule-frame";
+            frame.setAttribute("sandbox", "allow-same-origin allow-popups");
+            frame.srcdoc = scheduleHtml;
+
+            block.appendChild(header);
+            block.appendChild(frame);
+
+            if (Array.isArray(conflicts) && conflicts.length) {
+                const conflictNote = document.createElement("div");
+                conflictNote.style.padding = "10px 14px";
+                conflictNote.style.fontSize = "12px";
+                conflictNote.style.color = "#c62828";
+                conflictNote.textContent = `${conflicts.length} conflict(s) detected. See highlights in the schedule.`;
+                block.appendChild(conflictNote);
+            }
+
+            container.appendChild(block);
+            scrollToBottom();
+        }
+
+        sendBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            sendQuestion();
+        });
+
+        textarea.addEventListener("input", () => {
+            updateSendButtonState();
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 140) + 'px';
+        });
+
+        textarea.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 sendQuestion();
-            });
+            }
+        });
 
-            textarea.addEventListener("input", () => {
-                updateSendButtonState();
-                textarea.style.height = "auto";
-                const maxHeight = 120;
-                textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + "px";
+        if(newChatBtn) {
+            newChatBtn.addEventListener("click", () => {
+                resetChat();
             });
+        }
 
-            textarea.addEventListener("keydown", (e) => {
-                if (e.key === "Enter") {
-                    if (e.ctrlKey || e.metaKey) {
-                        e.preventDefault();
-                        sendQuestion();
-                    }
-                }
+        examplePills.forEach(pill => {
+            pill.addEventListener("click", () => {
+                const text = pill.getAttribute("data-example");
+                textarea.value = text;
+                textarea.focus();
+                textarea.dispatchEvent(new Event('input'));
             });
-
-            exampleButtons.forEach(btn => {
-                btn.addEventListener("click", () => {
-                    const example = btn.getAttribute("data-example") || "";
-                    textarea.value = example;
-                    textarea.focus();
-                    textarea.dispatchEvent(new Event("input"));
-                });
-            });
-
-            setStatus("Tip: Ctrl+Enter to send");
-            updateSendButtonState();
-        </script>
-    </body>
-    </html>
+        });
+    </script>
+</body>
+</html>

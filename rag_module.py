@@ -5,7 +5,7 @@
 - 加载向量库 index.faiss + texts.json
 - 提供问题改写、课程路由、chunk 选择等逻辑
 - 对外暴露：
-    - refine_question_with_qwen(question: str) -> str
+    
     - retrieve_context(question: str, ...) -> List[str]
     - is_course_selection_question(question: str) -> bool
     - is_syllabus_question(question: str) -> bool
@@ -34,10 +34,63 @@ MAX_CONTEXT_CHARS = 3600   # 拼接给大模型的 syllabus 总长度上限
 # 每门课的关键词（中文/英文都可以）
 # 注意：后面想维护新的课程，只用在这里加就行
 COURSE_FILE_HINTS: Dict[str, List[str]] = {
-    "ECE-GY 6143": ["6143", "machine learning", "机器学习", "ml"],
-    "ECE-GY 6483": ["6483", "embedded", "RISC-V", "嵌入式"],
-    "ECE-GY 6484": ["6484", "embedded lab", "lab", "实验"],
-    # 以后有新课持续往下加
+    # --- 1. Applied Matrix Theory (应用矩阵论) ---
+    "ECE-GY 5253": [
+        "5253", 
+        "matrix", "matrix theory", "linear algebra", "amt", # 英文常用词/缩写
+        "矩阵", "矩阵论", "线性代数" # 中文关键词
+    ],
+
+    # --- 2. Introduction to Electric Power Systems (电力系统) ---
+    # 注意：JSON里原ID是 el5613，这里为了统一格式，建议Mapping Key保持规范，或者兼容旧代码
+    "EL5613": [
+        "5613", 
+        "power", "power systems", 
+        "电力", "电力系统", "强电"
+    ],
+
+    # --- 3. Digital Signal Processing I (DSP) ---
+    # JSON里是 ECE-GY 6113 / BE-GY 6403 (生物医学工程跨列)
+    "ECE-GY 6113": [
+        "6113", "6403", # 两个课号都放进去
+        "dsp", "digital signal processing", "fft",
+        "数字信号处理", "信号处理", "信号"
+    ],
+
+    # --- 4. Introduction to Machine Learning (机器学习) ---
+    # 补充了 CS-GY 6923 这个跨列课号
+    "ECE-GY 6143": [
+        "6143", "6923", 
+        "machine learning", "ml", 
+        "机器学习"
+    ],
+
+    # --- 5. Linear Systems (线性系统) ---
+    "EL6253": [
+        "6253", 
+        "linear systems", "control", "control theory",
+        "线性系统", "线系", "控制理论", "控制"
+    ],
+
+    # --- 6. Real Time Embedded Systems (嵌入式) ---
+    "ECE-GY 6483": [
+        "6483", 
+        "embedded", "rtos", "real time", 
+        "嵌入式", "实时系统"
+    ],
+
+    # --- 7. Embedded Lab (这门课不在JSON里，保留原样) ---
+    "ECE-GY 6484": [
+        "6484", 
+        "embedded lab", "lab", 
+        "实验", "嵌入式实验"
+    ],
+    # --- 8. Computing Systems Architecture (计算机体系结构) ---
+    "ECE 6913": [
+        "6913", 
+        "architecture", "comp arch", "risc-v", "csa",
+        "计算机架构", "体系结构", "架构"
+    ]
 }
 
 # 调试信息给 /debug_retrieval 用
@@ -62,30 +115,36 @@ with open(TEXTS_PATH, "r", encoding="utf-8") as f:
     DOCS: List[Dict] = json.load(f)
 
 print(f"[RAG] Loaded {len(DOCS)} chunks from {TEXTS_PATH}")
+# ================== Qwen：意图检测 ==================
+import json
 
+import json
+import re
+from typing import Dict, Tuple
 
-# ================== Qwen：检索 query 改写 ==================
-
-def refine_question_with_qwen(question: str) -> str:
+def analyze_request_with_qwen(question: str) -> Tuple[str, str]:
     """
-    第一次调用 Qwen：把用户的原始提问，压缩成一条英文检索用的关键词/短句。
-    不要带解释，只要一行简短 query。
+    [二合一原子操作] 意图分类 + 搜索词改写
+    增强版：已添加 SCHEDULE 意图支持
     """
+    # [MODIFIED] 在提示词中增加了 SCHEDULE 类别和定义
     system_prompt = (
-        "You are a query rewriting assistant for a RAG system over NYU course syllabi.\n"
-        "Your task: rewrite the student's question into a SHORT English search query or keyword list.\n"
+        "You are an intelligent router and query rewriter for a university RAG system.\n"
+        "Your goal is to analyze the student's input and output a JSON object containing two fields:\n"
+        "1. 'intent': One of [COMPARISON, SELECTION, SYLLABUS, SCHEDULE, CHAT].\n"
+        "2. 'query': A concise English search query (5-20 words).\n\n"
         "Rules:\n"
-        "1) Output ONLY the rewritten query, in English, on a single line.\n"
-        "2) Do NOT explain, do NOT add any extra text.\n"
-        "3) Preserve any course codes like 'ECE-GY 6143' exactly if they appear.\n"
-        "4) Use 5–20 words that best capture the intent (topics, grading, exam, workload, etc.)."
+        "- Output ONLY raw JSON.\n"
+        "- Intent Definitions:\n"
+        "  * COMPARISON: Comparing 2+ courses (e.g., 'diff between A and B').\n"
+        "  * SELECTION: Asking for recommendations (e.g., 'easy courses for AI').\n"
+        "  * SYLLABUS: Asking for course details (grading, exams, prerequisites, topics).\n"
+        "  * SCHEDULE: Requests to manage the calendar (e.g., 'add 6143', 'remove course', 'show my schedule', 'check conflicts').\n"
+        "  * CHAT: General greeting or non-academic conversation.\n"
+        "- If intent is CHAT, 'query' can be null.\n"
     )
 
-    user_prompt = (
-        "Student question:\n"
-        f"{question}\n\n"
-        "Rewrite this as a concise English search query for retrieving relevant syllabus snippets."
-    )
+    user_prompt = f"User Input: \"{question}\"\n\nResponse JSON:"
 
     messages = [
         {"role": "system", "content": system_prompt},
@@ -93,19 +152,89 @@ def refine_question_with_qwen(question: str) -> str:
     ]
 
     try:
-        refined = call_qwen(
-            messages,
-            max_tokens=64,
-            temperature=0.1,
-            top_p=0.8,
-        )
-        refined = (refined or "").strip()
-        if not refined:
-            return question
-        return refined
-    except Exception:
-        # 千问第一次调用挂了，也退回原始问题，不影响整体功能
-        return question
+        raw_response = call_qwen(messages, max_tokens=4096, temperature=0.1)
+        
+        # 提取 JSON
+        match = re.search(r"\{[\s\S]*\}", raw_response)
+        if match:
+            json_str = match.group(0)
+        else:
+            print(f"[Analyze] JSON parsing failed. Raw: {raw_response}")
+            return "CHAT", question
+
+        data = json.loads(json_str)
+        
+        # =====================================================
+        # [核心修复] 健壮的数据类型处理
+        # =====================================================
+        
+        # 1. 处理 Intent
+        raw_intent = data.get("intent")
+        if isinstance(raw_intent, list):
+            intent = str(raw_intent[0]) if raw_intent else "CHAT"
+        else:
+            intent = str(raw_intent) if raw_intent else "CHAT"
+        
+        intent = intent.strip().upper()
+
+        # 2. 处理 Query
+        raw_query = data.get("query")
+        if isinstance(raw_query, list):
+            refined_query = " ".join([str(x) for x in raw_query])
+        else:
+            refined_query = str(raw_query) if raw_query else ""
+            
+        refined_query = refined_query.strip()
+
+        # =====================================================
+
+        # 3. 兜底校验 [MODIFIED]
+        # 这里必须把 SCHEDULE 加进去，否则会被当成异常重置为 CHAT
+        valid_intents = ["COMPARISON", "SELECTION", "SYLLABUS", "SCHEDULE", "CHAT"]
+        
+        if intent not in valid_intents:
+            q_upper = question.upper()
+            # 简单的关键词补救逻辑
+            if "VS" in q_upper or "比较" in question: 
+                intent = "COMPARISON"
+            elif "RECOMMEND" in q_upper or "推荐" in question: 
+                intent = "SELECTION"
+            # [NEW] 增加排课的关键词兜底
+            elif any(k in q_upper for k in ["ADD", "REMOVE", "SCHEDULE", "CALENDAR", "TIME TABLE"]):
+                intent = "SCHEDULE"
+            elif "SYLLABUS" in q_upper or "EXAM" in q_upper or "GRADE" in q_upper: 
+                intent = "SYLLABUS"
+            else: 
+                intent = "CHAT"
+
+        # 如果 query 为空，用原问题兜底
+        if not refined_query:
+            refined_query = question
+
+        print(f"[Analyze] Intent: {intent} | Query: {refined_query}")
+        return intent, refined_query
+
+    except Exception as e:
+        print(f"[Analyze ❌ ERROR] {e}")
+        # 出错降级
+        return "CHAT", question
+
+
+def _fallback_intent_check(model_output: str, original_question: str) -> str:
+    """
+    辅助函数：如果模型返回的 intent 不在标准集合里，
+    尝试从模型输出或原始问题中找关键词进行补救。
+    """
+    text_to_check = (model_output + " " + original_question).upper()
+    
+    if "VS" in text_to_check or "COMPAR" in text_to_check or "对比" in text_to_check:
+        return "COMPARISON"
+    if "SELECT" in text_to_check or "CHOOSE" in text_to_check or "RECOMMEND" in text_to_check or "哪" in text_to_check:
+        return "SELECTION"
+    if "SYLLABUS" in text_to_check or "EXAM" in text_to_check or "GRAD" in text_to_check or re.search(r"\d{4}", text_to_check):
+        return "SYLLABUS"
+    
+    return "CHAT"
 
 
 # ================== embedding & 课程号工具 ==================
@@ -296,85 +425,6 @@ def detect_priority_types(question: str) -> Set[str]:
     return types
 
 
-def is_course_comparison_question(question: str) -> bool:
-    q = question.lower()
-    return (
-        "还是" in question
-        or "比较" in question
-        or "对比" in question
-        or " or " in q
-        or "vs" in q
-        or "versus" in q
-    )
-
-
-def is_course_selection_question(question: str) -> bool:
-    q = question.lower()
-    # 英文触发词
-    if any(k in q for k in [
-        "which course should i take",
-        "which course should i choose",
-        "which course is better",
-        "which course is more suitable",
-        "recommend a course",
-        "what course should i take",
-        "what courses should i take",
-        "which courses should i take",
-    ]):
-        return True
-
-    # 中文触发词（放原文，不转小写）
-    if any(k in question for k in [
-        "选哪门课",
-        "选哪个课",
-        "选哪门",
-        "选什么课",
-        "该选什么课",
-        "推荐哪门课",
-        "推荐什么课",
-        "哪些课适合我",
-        "我要学什么课",
-        "学什么课",
-        "学哪门课",
-        "哪门课比较适合",
-        "选一些课",
-        "选几门课",
-    ]):
-        return True
-
-    return False
-
-
-def is_syllabus_question(question: str) -> bool:
-    """
-    判断是不是“问课程 / syllabus / grading / exam / 作业”这类问题。
-    只有这类问题才触发 syllabus RAG。
-    """
-    q = question.lower()
-
-    # 1) 有明确课程号
-    if _extract_course_codes(question):
-        return True
-
-    # 2) 出现 NYU Tandon 课程常见关键词
-    if any(k in q for k in [
-        "ece-gy", "cs-gy", "syllabus",
-        "grading", "grade", "exam", "midterm", "final", "quiz",
-        "homework", "assignment", "project", "lab",
-        "office hour", "instructor", "professor",
-    ]):
-        return True
-
-    # 3) 中文关键词：课程 / 作业 / 考试 / 占比 等
-    if any(k in question for k in [
-        "这门课", "课程内容", "上课时间", "作业", "考试",
-        "期末", "期中", "占比", "评分", "成绩", "先修课", "难度",
-    ]):
-        return True
-
-    return False
-
-
 def _looks_like_comparison(question: str, course_codes: List[str]) -> bool:
     """简单判断是不是在比较多门课，如果是就允许多个 syllabus 一起出现。"""
     q = question.lower()
@@ -404,6 +454,48 @@ def _compute_boost(
     meta_type = meta.get("type", "normal")
 
     boost = 0
+
+    # ==== 0) 课程号数字后缀的强制加分 ====
+    # 例如问题提到 5613，meta.course/meta.file 也含 5613，则直接给高权重，压过语义噪声
+    def _last_num(val) -> Optional[str]:
+        if not val:
+            return None
+        nums = re.findall(r"\d{3,4}", str(val))
+        return nums[-1] if nums else None
+    def _collect_nums(val: str) -> Set[str]:
+        return set(re.findall(r"\d{3,5}", val)) if val else set()
+
+    query_nums: Set[str] = set()
+    for c in course_codes:
+        num = _last_num(c)
+        if num:
+            query_nums.add(num)
+    # 再从原问题里捞所有 3-5 位数字，避免正则漏掉 “ECE 5613” 这种写法
+    query_nums |= _collect_nums(question)
+
+    meta_nums: Set[str] = set()
+    mc = _last_num(meta.get("course"))
+    mf = _last_num(meta.get("file"))
+    if mc:
+        meta_nums.add(mc)
+    if mf:
+        meta_nums.add(mf)
+    meta_nums |= _collect_nums(meta.get("course", ""))
+    meta_nums |= _collect_nums(meta.get("file", ""))
+
+    if query_nums and meta_nums and query_nums.intersection(meta_nums):
+        boost += 120  # 硬加分，确保命中课号的 chunk 排最前
+
+    # 若完整课程码（去空格/下划线/连字符）直接对齐，也给次级加分
+    def _canon(s: str) -> str:
+        return re.sub(r"[^A-Z0-9]", "", s.upper()) if s else ""
+    q_canon = _canon(question)
+    course_canon = _canon(meta.get("course", ""))
+    file_canon = _canon(meta.get("file", ""))
+    for cc in course_codes:
+        if _canon(cc) and (_canon(cc) in course_canon or _canon(cc) in file_canon or _canon(cc) in q_canon):
+            boost += 20
+            break
 
     # ===== 1) 关键词级 boost =====
 
@@ -549,6 +641,8 @@ def retrieve_context(
 
     candidates.sort(key=lambda x: (-x["boost"], x["rank"]))
 
+    
+
     global LAST_RETRIEVAL_DEBUG
     LAST_RETRIEVAL_DEBUG = {
         "question": aq,
@@ -620,7 +714,7 @@ def retrieve_context(
 
 
 __all__ = [
-    "refine_question_with_qwen",
+    
     "retrieve_context",
     "is_course_selection_question",
     "is_syllabus_question",
