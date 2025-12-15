@@ -75,7 +75,15 @@ QWEN_TEST_ENABLED=1 pytest test_integration_qwen.py -q -m integration
 
 ## 📂 Project Layout
 Working demo:
+main page display:
 ![Home Page](static/demo1.png)
+test scenarios display:
+![Home Page](static/demo2.png)
+![Home Page](static/demo3.png)
+![Home Page](static/demo4.png)
+![Home Page](static/demo5.png)
+![Home Page](static/demo6.png)
+
 
 ## Common Issues
 - Missing vector store: rerun `python ingest_syllabi.py` and ensure `vector_store/index.faiss` + `texts.json` exist.
